@@ -1,0 +1,71 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Score Entry · ACADEX</title>
+    <link rel="stylesheet" href="../../css/style.css" />
+  </head>
+  <body>
+    <aside class="sidebar">
+      <div class="logo"><h2>ACADEX</h2></div>
+      <nav class="sidebar-nav">
+        <a href="lecturer-dashboard.html" class="nav-link">Dashboard</a>
+        <a href="lecturer-profile.html" class="nav-link">Profile</a>
+      </nav>
+      <div class="sidebar-bottom">
+        <a href="lecturer-login.html" class="nav-link logout">Logout</a>
+      </div>
+    </aside>
+
+    <main class="main-content">
+      <a href="lecturer-dashboard.html" class="back-link"
+        >← Back to Dashboard</a
+      >
+
+      <section class="score-header">
+        <div>
+          <h1 id="courseTitle">—</h1>
+          <div class="meta" id="courseMeta">—</div>
+        </div>
+        <span id="statusBadge" class="status-badge">—</span>
+      </section>
+      <p class="score-progress" id="progress">—</p>
+
+      <div class="locked-note" id="lockedNote" style="display: none">
+        These results have been submitted and are locked. You can view them but
+        not change them.
+      </div>
+
+      <div class="table-wrap">
+        <table class="scores">
+          <thead>
+            <tr>
+              <th class="idx">#</th>
+              <th>Matric No.</th>
+              <th>Student Name</th>
+              <th class="r">CA <span class="cap">/30</span></th>
+              <th class="r">Exam <span class="cap">/70</span></th>
+              <th class="r">Total</th>
+              <th>Grade</th>
+              <th class="r">Point</th>
+            </tr>
+          </thead>
+          <tbody id="roster"></tbody>
+        </table>
+      </div>
+    </main>
+
+    <div class="action-bar">
+      <span class="action-hint" id="actionHint"></span>
+      <div class="action-btns">
+        <button class="course-button btn-draft" id="saveBtn">Save Draft</button>
+        <button class="course-button" id="submitBtn">Submit Results</button>
+      </div>
+    </div>
+
+    <div id="toast"></div>
+
+    <script src="../../js/score-entry.js"></script>
+  </body>
+</html>
