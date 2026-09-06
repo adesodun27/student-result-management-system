@@ -4,7 +4,7 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Lecturer Dashboard · ACADEX</title>
-    <link rel="stylesheet" href="../css/style.css" />
+    <link rel="stylesheet" href="../../css/style.css" />
   </head>
   <body>
     <aside class="sidebar">
@@ -29,7 +29,7 @@
         </div>
 
         <div class="session-selector">
-          <select id="sessionSelect">
+          <select id="sessionSelect" title="Select session">
             <option value="2024/2025-first">2024/2025 · First</option>
             <option value="2024/2025-second">2024/2025 · Second</option>
           </select>
@@ -58,7 +58,10 @@
 
       <!-- Needs Attention -->
       <div class="attention">
-        <p><strong>3 courses need your attention</strong> — 2 not started, 1 draft not yet submitted.</p>
+        <p>
+          <strong>3 courses need your attention</strong> — 2 not started, 1
+          draft not yet submitted.
+        </p>
       </div>
 
       <!-- My Courses -->
@@ -81,7 +84,12 @@
             <p>24 / 40 scored</p>
           </div>
           <span class="status-badge status-draft">Draft</span>
-          <button class="course-button" onclick="location.href='score-entry.html?course=CSC401'">Continue</button>
+          <button
+            class="course-button"
+            onclick="location.href = 'score-entry.html?course=CSC401'"
+          >
+            Continue
+          </button>
         </div>
 
         <!-- Course 2 -->
@@ -97,7 +105,12 @@
             <p>0 / 38 scored</p>
           </div>
           <span class="status-badge status-not-started">Not Started</span>
-          <button class="course-button" onclick="location.href='score-entry.html?course=CSC415'">Enter Scores</button>
+          <button
+            class="course-button"
+            onclick="location.href = 'score-entry.html?course=CSC415'"
+          >
+            Enter Scores
+          </button>
         </div>
 
         <!-- Course 3 -->
@@ -113,7 +126,12 @@
             <p>52 / 52 scored</p>
           </div>
           <span class="status-badge status-submitted">Submitted</span>
-          <button class="course-button" onclick="location.href='score-entry.html?course=CSC302'">View</button>
+          <button
+            class="course-button"
+            onclick="location.href = 'score-entry.html?course=CSC302'"
+          >
+            View
+          </button>
         </div>
 
         <!-- Course 4 -->
@@ -129,7 +147,12 @@
             <p>0 / 35 scored</p>
           </div>
           <span class="status-badge status-not-started">Not Started</span>
-          <button class="course-button" onclick="location.href='score-entry.html?course=CSC410'">Enter Scores</button>
+          <button
+            class="course-button"
+            onclick="location.href = 'score-entry.html?course=CSC410'"
+          >
+            Enter Scores
+          </button>
         </div>
       </section>
     </main>
