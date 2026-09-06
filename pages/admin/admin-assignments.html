@@ -1,0 +1,120 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Assignments · ACADEX</title>
+    <link rel="stylesheet" href="../../css/style.css" />
+  </head>
+  <body>
+    <aside class="sidebar">
+      <div class="logo"><h2>ACADEX</h2></div>
+      <nav class="sidebar-nav">
+        <a href="admin-dashboard.html" class="nav-link">Dashboard</a>
+        <a href="admin-students.html" class="nav-link">Students</a>
+        <a href="admin-lecturers.html" class="nav-link">Lecturers</a>
+        <a href="admin-courses.html" class="nav-link">Courses</a>
+        <a href="admin-assignments.html" class="nav-link">Assignments</a>
+        <a href="admin-approvals.html" class="nav-link">Approvals</a>
+      </nav>
+      <div class="sidebar-bottom">
+        <a href="admin-login.html" class="nav-link logout">Logout</a>
+      </div>
+    </aside>
+
+    <main class="main-content">
+      <section class="page-head">
+        <h1>Assignments</h1>
+        <p>Assign courses to lecturers and register students into courses</p>
+      </section>
+
+      <!-- ============ LECTURER → COURSE ============ -->
+      <div class="section-title">
+        <h2>Assign course to lecturer</h2>
+      </div>
+
+      <div class="form-card">
+        <div class="form-row">
+          <div class="form-field">
+            <label for="lecSelect">Lecturer</label>
+            <select id="lecSelect" title="Select lecturer"></select>
+          </div>
+          <div class="form-field">
+            <label for="lecCourse">Course</label>
+            <select id="lecCourse" title="Select course"></select>
+          </div>
+          <div class="form-field small">
+            <label for="lecSemester">Semester</label>
+            <select id="lecSemester" title="Select semester">
+              <option>First</option>
+              <option>Second</option>
+            </select>
+          </div>
+          <button class="course-button" id="assignBtn">Assign</button>
+        </div>
+        <p class="form-error" id="lecError"></p>
+      </div>
+
+      <div class="table-wrap" style="margin-bottom:40px">
+        <table class="scores">
+          <thead>
+            <tr>
+              <th>Lecturer</th>
+              <th>Course</th>
+              <th>Semester</th>
+              <th class="r">Action</th>
+            </tr>
+          </thead>
+          <tbody id="lecAssignList"></tbody>
+        </table>
+      </div>
+
+      <!-- ============ STUDENT → COURSE ============ -->
+      <div class="section-title">
+        <h2>Register student into course</h2>
+      </div>
+
+      <div class="form-card">
+        <div class="form-row">
+          <div class="form-field">
+            <label for="stuSelect">Student</label>
+            <select id="stuSelect" title="Select student"></select>
+          </div>
+          <div class="form-field">
+            <label for="stuCourse">Course</label>
+            <select id="stuCourse" title="Select course"></select>
+          </div>
+          <div class="form-field small">
+            <label for="stuSemester">Semester</label>
+            <select id="stuSemester" title="Select semester">
+              <option>First</option>
+              <option>Second</option>
+            </select>
+          </div>
+          <button class="course-button" id="registerBtn">Register</button>
+        </div>
+        <p class="form-error" id="stuError"></p>
+      </div>
+
+      <div class="table-wrap">
+        <table class="scores">
+          <thead>
+            <tr>
+              <th>Student</th>
+              <th>Course</th>
+              <th>Semester</th>
+              <th class="r">Action</th>
+            </tr>
+          </thead>
+          <tbody id="stuRegList"></tbody>
+        </table>
+      </div>
+    </main>
+
+    <div id="toast"></div>
+
+    <script src="../../js/sidebar.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="../../js/admin-assignments.js"></script>
+  </body>
+</html>

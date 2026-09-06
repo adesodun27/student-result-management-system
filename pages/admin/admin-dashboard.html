@@ -1,0 +1,113 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Admin Dashboard · ACADEX</title>
+    <link rel="stylesheet" href="../../css/style.css" />
+  </head>
+  <body>
+    <aside class="sidebar">
+      <div class="logo"><h2>ACADEX</h2></div>
+      <nav class="sidebar-nav">
+        <a href="admin-dashboard.html" class="nav-link">Dashboard</a>
+        <a href="admin-students.html" class="nav-link">Students</a>
+        <a href="admin-lecturers.html" class="nav-link">Lecturers</a>
+        <a href="admin-courses.html" class="nav-link">Courses</a>
+        <a href="admin-assignments.html" class="nav-link">Assignments</a>
+        <a href="admin-approvals.html" class="nav-link">Approvals</a>
+      </nav>
+      <div class="sidebar-bottom">
+        <a href="admin-login.html" class="nav-link logout">Logout</a>
+      </div>
+    </aside>
+
+    <main class="main-content">
+      <!-- Header -->
+      <section class="lecturer-header">
+        <div class="welcome-text">
+          <p class="welcome-message">Welcome, Admin 👋</p>
+          <p class="lecturer-info">Academic Result Management</p>
+        </div>
+        <div class="session-selector">
+          <select id="sessionSelect" title="Select session">
+            <option value="2024/2025-first">2024/2025 · First</option>
+            <option value="2024/2025-second">2024/2025 · Second</option>
+          </select>
+        </div>
+      </section>
+
+      <!-- Summary Cards -->
+      <section class="summary-cards">
+        <div class="summary-card">
+          <p>Students</p>
+          <h3>1,248</h3>
+        </div>
+        <div class="summary-card">
+          <p>Lecturers</p>
+          <h3>64</h3>
+        </div>
+        <div class="summary-card">
+          <p>Courses</p>
+          <h3>92</h3>
+        </div>
+        <div class="summary-card pending-card">
+          <p>Pending Approvals</p>
+          <h3>3</h3>
+        </div>
+      </section>
+
+      <!-- Pending Approvals -->
+      <section class="courses-section">
+        <div class="section-title">
+          <h2>Pending Approvals</h2>
+          <span>Results submitted by lecturers, waiting for your approval</span>
+        </div>
+
+        <div class="table-wrap">
+          <table class="scores">
+            <thead>
+              <tr>
+                <th>Course</th>
+                <th>Lecturer</th>
+                <th class="r">Students</th>
+                <th>Session</th>
+                <th>Status</th>
+                <th class="r">Action</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td class="name">CSC 401 · Software Engineering</td>
+                <td>Dr. Adesodun</td>
+                <td class="r">40</td>
+                <td>2024/2025 · First</td>
+                <td><span class="status-badge status-submitted">Submitted</span></td>
+                <td class="r"><a class="btn-sm" href="admin-approvals.html">Review</a></td>
+              </tr>
+              <tr>
+                <td class="name">CSC 302 · Operating Systems</td>
+                <td>Dr. Okafor</td>
+                <td class="r">52</td>
+                <td>2024/2025 · First</td>
+                <td><span class="status-badge status-submitted">Submitted</span></td>
+                <td class="r"><a class="btn-sm" href="admin-approvals.html">Review</a></td>
+              </tr>
+              <tr>
+                <td class="name">MTH 201 · Linear Algebra</td>
+                <td>Prof. Bello</td>
+                <td class="r">88</td>
+                <td>2024/2025 · First</td>
+                <td><span class="status-badge status-submitted">Submitted</span></td>
+                <td class="r"><a class="btn-sm" href="admin-approvals.html">Review</a></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+    </main>
+
+    <script src="../../js/sidebar.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  </body>
+</html>

@@ -1,0 +1,79 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Lecturers · ACADEX</title>
+    <link rel="stylesheet" href="../../css/style.css" />
+  </head>
+  <body>
+    <aside class="sidebar">
+      <div class="logo"><h2>ACADEX</h2></div>
+      <nav class="sidebar-nav">
+        <a href="admin-dashboard.html" class="nav-link">Dashboard</a>
+        <a href="admin-students.html" class="nav-link">Students</a>
+        <a href="admin-lecturers.html" class="nav-link">Lecturers</a>
+        <a href="admin-courses.html" class="nav-link">Courses</a>
+        <a href="admin-assignments.html" class="nav-link">Assignments</a>
+        <a href="admin-approvals.html" class="nav-link">Approvals</a>
+      </nav>
+      <div class="sidebar-bottom">
+        <a href="admin-login.html" class="nav-link logout">Logout</a>
+      </div>
+    </aside>
+
+    <main class="main-content">
+      <section class="page-head">
+        <h1>Lecturers</h1>
+        <p>Add and manage lecturers</p>
+      </section>
+
+      <!-- Add form -->
+      <div class="form-card">
+        <h3>Add a lecturer</h3>
+        <div class="form-row">
+          <div class="form-field">
+            <label for="name">Full Name</label>
+            <input id="name" type="text" placeholder="e.g. Dr. Adesodun Oladipo" />
+          </div>
+          <div class="form-field">
+            <label for="staffId">Staff ID</label>
+            <input id="staffId" type="text" placeholder="e.g. LEC/2019/0142" />
+          </div>
+          <div class="form-field">
+            <label for="email">Email</label>
+            <input id="email" type="email" placeholder="e.g. lecturer@acadex.edu" />
+          </div>
+          <div class="form-field">
+            <label for="department">Department</label>
+            <input id="department" type="text" placeholder="e.g. Computer Science" />
+          </div>
+          <button class="course-button" id="addBtn">Add Lecturer</button>
+        </div>
+        <p class="form-error" id="formError"></p>
+      </div>
+
+      <!-- List -->
+      <div class="table-wrap">
+        <table class="scores">
+          <thead>
+            <tr>
+              <th>Staff ID</th>
+              <th>Full Name</th>
+              <th>Email</th>
+              <th>Department</th>
+              <th class="r">Action</th>
+            </tr>
+          </thead>
+          <tbody id="lecturerList"></tbody>
+        </table>
+      </div>
+    </main>
+
+    <div id="toast"></div>
+
+    <script src="../../js/sidebar.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="../../js/admin-lecturers.js"></script>
+  </body>
+</html>

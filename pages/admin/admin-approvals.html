@@ -1,0 +1,95 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Approvals · ACADEX</title>
+    <link rel="stylesheet" href="../../css/style.css" />
+  </head>
+  <body>
+    <aside class="sidebar">
+      <div class="logo"><h2>ACADEX</h2></div>
+      <nav class="sidebar-nav">
+        <a href="admin-dashboard.html" class="nav-link">Dashboard</a>
+        <a href="admin-students.html" class="nav-link">Students</a>
+        <a href="admin-lecturers.html" class="nav-link">Lecturers</a>
+        <a href="admin-courses.html" class="nav-link">Courses</a>
+        <a href="admin-assignments.html" class="nav-link">Assignments</a>
+        <a href="admin-approvals.html" class="nav-link">Approvals</a>
+      </nav>
+      <div class="sidebar-bottom">
+        <a href="admin-login.html" class="nav-link logout">Logout</a>
+      </div>
+    </aside>
+
+    <main class="main-content">
+      <section class="page-head">
+        <h1>Approvals</h1>
+        <p>Review results submitted by lecturers and approve them for students</p>
+      </section>
+
+      <!-- LIST VIEW: submitted courses waiting -->
+      <section id="listView">
+        <div class="table-wrap">
+          <table class="scores">
+            <thead>
+              <tr>
+                <th>Course</th>
+                <th>Lecturer</th>
+                <th class="r">Students</th>
+                <th>Session</th>
+                <th>Status</th>
+                <th class="r">Action</th>
+              </tr>
+            </thead>
+            <tbody id="submittedList"></tbody>
+          </table>
+        </div>
+      </section>
+
+      <!-- DETAIL VIEW: one course's scores to review -->
+      <section id="detailView" class="hidden">
+        <a href="#" class="back-link" id="backToList">← Back to list</a>
+
+        <div class="score-header">
+          <div>
+            <h1 id="detailTitle">—</h1>
+            <div class="meta" id="detailMeta">—</div>
+          </div>
+          <span class="status-badge status-submitted">Submitted</span>
+        </div>
+
+        <div class="table-wrap">
+          <table class="scores">
+            <thead>
+              <tr>
+                <th class="idx">#</th>
+                <th>Student</th>
+                <th class="r">CA</th>
+                <th class="r">Exam</th>
+                <th class="r">Total</th>
+                <th>Grade</th>
+              </tr>
+            </thead>
+            <tbody id="detailRoster"></tbody>
+          </table>
+        </div>
+      </section>
+    </main>
+
+    <!-- Action bar (only in detail view) -->
+    <div class="action-bar hidden" id="actionBar">
+      <span class="action-hint" id="actionHint"></span>
+      <div class="action-btns">
+        <button class="course-button btn-draft" id="returnBtn">Return to Lecturer</button>
+        <button class="course-button" id="approveBtn">Approve &amp; Publish</button>
+      </div>
+    </div>
+
+    <div id="toast"></div>
+
+    <script src="../../js/sidebar.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="../../js/admin-approvals.js"></script>
+  </body>
+</html>
