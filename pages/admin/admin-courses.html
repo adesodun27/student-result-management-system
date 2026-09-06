@@ -1,0 +1,85 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Courses · ACADEX</title>
+    <link rel="stylesheet" href="../../css/style.css" />
+  </head>
+  <body>
+    <aside class="sidebar">
+      <div class="logo"><h2>ACADEX</h2></div>
+      <nav class="sidebar-nav">
+        <a href="admin-dashboard.html" class="nav-link">Dashboard</a>
+        <a href="admin-students.html" class="nav-link">Students</a>
+        <a href="admin-lecturers.html" class="nav-link">Lecturers</a>
+        <a href="admin-courses.html" class="nav-link">Courses</a>
+        <a href="admin-assignments.html" class="nav-link">Assignments</a>
+        <a href="admin-approvals.html" class="nav-link">Approvals</a>
+      </nav>
+      <div class="sidebar-bottom">
+        <a href="admin-login.html" class="nav-link logout">Logout</a>
+      </div>
+    </aside>
+
+    <main class="main-content">
+      <section class="page-head">
+        <h1>Courses</h1>
+        <p>Create and manage courses</p>
+      </section>
+
+      <!-- Add form -->
+      <div class="form-card">
+        <h3>Add a course</h3>
+        <div class="form-row">
+          <div class="form-field">
+            <label for="code">Course Code</label>
+            <input id="code" type="text" placeholder="e.g. CSC 401" />
+          </div>
+          <div class="form-field">
+            <label for="title">Course Title</label>
+            <input id="title" type="text" placeholder="e.g. Software Engineering" />
+          </div>
+          <div class="form-field small">
+            <label for="unit">Units</label>
+            <input id="unit" type="number" min="1" placeholder="3" />
+          </div>
+          <div class="form-field small">
+            <label for="level">Level</label>
+            <select id="level" title="Select level">
+              <option value="">—</option>
+              <option>100</option>
+              <option>200</option>
+              <option>300</option>
+              <option>400</option>
+              <option>500</option>
+            </select>
+          </div>
+          <button class="course-button" id="addBtn">Add Course</button>
+        </div>
+        <p class="form-error" id="formError"></p>
+      </div>
+
+      <!-- List -->
+      <div class="table-wrap">
+        <table class="scores">
+          <thead>
+            <tr>
+              <th>Code</th>
+              <th>Title</th>
+              <th class="r">Units</th>
+              <th class="r">Level</th>
+              <th class="r">Action</th>
+            </tr>
+          </thead>
+          <tbody id="courseList"></tbody>
+        </table>
+      </div>
+    </main>
+
+    <div id="toast"></div>
+
+    <script src="../../js/sidebar.js"></script>
+    <script src="../../js/admin-courses.js"></script>
+  </body>
+</html>
