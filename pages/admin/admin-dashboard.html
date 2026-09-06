@@ -8,7 +8,10 @@
   </head>
   <body>
     <aside class="sidebar">
-      <div class="logo"><h2>ACADEX</h2></div>
+      <div class="sidebar-header">
+  <div class="logo"><h2>ACADEX</h2></div>
+  <button class="hamburger" id="hamburger" title="Menu" aria-label="Menu">☰</button>
+</div>
       <nav class="sidebar-nav">
         <a href="admin-dashboard.html" class="nav-link">Dashboard</a>
         <a href="admin-students.html" class="nav-link">Students</a>
@@ -31,8 +34,8 @@
         </div>
         <div class="session-selector">
           <select id="sessionSelect" title="Select session">
-            <option value="2024/2025-first">2024/2025 · First</option>
-            <option value="2024/2025-second">2024/2025 · Second</option>
+            <option value="2024/2025-first">2024/2025 · Harmattan</option>
+            <option value="2024/2025-second">2024/2025 · Rain</option>
           </select>
         </div>
       </section>
@@ -81,7 +84,7 @@
                 <td class="name">CSC 401 · Software Engineering</td>
                 <td>Dr. Adesodun</td>
                 <td class="r">40</td>
-                <td>2024/2025 · First</td>
+                <td>2024/2025 · Harmattan</td>
                 <td><span class="status-badge status-submitted">Submitted</span></td>
                 <td class="r"><a class="btn-sm" href="admin-approvals.html">Review</a></td>
               </tr>
@@ -89,7 +92,7 @@
                 <td class="name">CSC 302 · Operating Systems</td>
                 <td>Dr. Okafor</td>
                 <td class="r">52</td>
-                <td>2024/2025 · First</td>
+                <td>2024/2025 · Harmattan</td>
                 <td><span class="status-badge status-submitted">Submitted</span></td>
                 <td class="r"><a class="btn-sm" href="admin-approvals.html">Review</a></td>
               </tr>
@@ -97,7 +100,7 @@
                 <td class="name">MTH 201 · Linear Algebra</td>
                 <td>Prof. Bello</td>
                 <td class="r">88</td>
-                <td>2024/2025 · First</td>
+                <td>2024/2025 · Harmattan</td>
                 <td><span class="status-badge status-submitted">Submitted</span></td>
                 <td class="r"><a class="btn-sm" href="admin-approvals.html">Review</a></td>
               </tr>
@@ -108,6 +111,8 @@
     </main>
 
     <script src="../../js/sidebar.js"></script>
+    <script src="../../js/menu.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+      <script src="../../js/supabase-config.js"></script>
   </body>
 </html>

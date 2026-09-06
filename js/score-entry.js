@@ -20,7 +20,7 @@
       const COURSES = {
         CSC401: {
           code: "CSC 401", title: "Software Engineering",
-          level: "400", units: 3, semester: "First", status: "draft",
+          level: "400", units: 3, semester: "Harmattan", status: "draft",
           roster: [
             { matric: "CSC/2021/001", name: "Adebayo Chidinma", ca: 24, exam: 58 },
             { matric: "CSC/2021/014", name: "Okonkwo Emeka",    ca: 18, exam: 41 },
@@ -32,7 +32,7 @@
         },
         CSC415: {
           code: "CSC 415", title: "Database Systems",
-          level: "400", units: 3, semester: "First", status: "not-started",
+          level: "400", units: 3, semester: "Harmattan", status: "not-started",
           roster: [
             { matric: "CSC/2021/001", name: "Adebayo Chidinma", ca: null, exam: null },
             { matric: "CSC/2021/014", name: "Okonkwo Emeka",    ca: null, exam: null },
@@ -42,7 +42,7 @@
         },
         CSC302: {
           code: "CSC 302", title: "Operating Systems",
-          level: "300", units: 3, semester: "First", status: "submitted",
+          level: "300", units: 3, semester: "Harmattan", status: "submitted",
           roster: [
             { matric: "CSC/2020/003", name: "Ahmed Yusuf", ca: 26, exam: 60 },
             { matric: "CSC/2020/009", name: "Obi Ngozi",   ca: 20, exam: 52 },
@@ -51,7 +51,7 @@
         },
         CSC410: {
           code: "CSC 410", title: "Computer Networks",
-          level: "400", units: 3, semester: "First", status: "not-started",
+          level: "400", units: 3, semester: "Harmattan", status: "not-started",
           roster: [
             { matric: "CSC/2021/001", name: "Adebayo Chidinma", ca: null, exam: null },
             { matric: "CSC/2021/014", name: "Okonkwo Emeka",    ca: null, exam: null },

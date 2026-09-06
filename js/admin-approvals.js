@@ -7,7 +7,7 @@ const SUBMITTED = {
     code: "CSC 401",
     title: "Software Engineering",
     lecturer: "Dr. Adesodun",
-    session: "2024/2025 · First",
+    session: "2024/2025 · Harmattan",
     roster: [
       { name: "Adebayo Chidinma", ca: 24, exam: 58 },
       { name: "Okonkwo Emeka", ca: 18, exam: 41 },
@@ -19,7 +19,7 @@ const SUBMITTED = {
     code: "CSC 302",
     title: "Operating Systems",
     lecturer: "Dr. Okafor",
-    session: "2024/2025 · First",
+    session: "2024/2025 · Harmattan",
     roster: [
       { name: "Ahmed Yusuf", ca: 26, exam: 60 },
       { name: "Obi Ngozi", ca: 20, exam: 52 },
@@ -30,7 +30,7 @@ const SUBMITTED = {
     code: "MTH 201",
     title: "Linear Algebra",
     lecturer: "Prof. Bello",
-    session: "2024/2025 · First",
+    session: "2024/2025 · Harmattan",
     roster: [
       { name: "Musa Ibrahim", ca: 22, exam: 55 },
       { name: "Grace John", ca: 27, exam: 61 },

@@ -8,7 +8,10 @@
   </head>
   <body>
     <aside class="sidebar">
-      <div class="logo"><h2>ACADEX</h2></div>
+      <div class="sidebar-header">
+  <div class="logo"><h2>ACADEX</h2></div>
+  <button class="hamburger" id="hamburger" title="Menu" aria-label="Menu">☰</button>
+</div>
       <nav class="sidebar-nav">
         <a href="lecturer-dashboard.html" class="nav-link">Dashboard</a>
         <a href="lecturer-profile.html" class="nav-link">Profile</a>
@@ -30,8 +33,8 @@
 
         <div class="session-selector">
           <select id="sessionSelect" title="Select session">
-            <option value="2024/2025-first">2024/2025 · First</option>
-            <option value="2024/2025-second">2024/2025 · Second</option>
+            <option value="2024/2025-first">2024/2025 · Harmattan</option>
+            <option value="2024/2025-second">2024/2025 · Rain</option>
           </select>
         </div>
       </section>
@@ -68,14 +71,14 @@
       <section class="courses-section">
         <div class="section-title">
           <h2>My Courses</h2>
-          <span>2024/2025 · First Semester</span>
+          <span>2024/2025 · Harmattan Semester</span>
         </div>
 
         <!-- Course 1 -->
         <div class="course-card">
           <div class="course-info">
             <h3>CSC 401 · Software Engineering</h3>
-            <p>400 Level · 3 Units · First Semester · 40 Students</p>
+            <p>400 Level · 3 Units · Harmattan Semester · 40 Students</p>
           </div>
           <div class="course-progress">
             <div class="progress-bar">
@@ -96,7 +99,7 @@
         <div class="course-card">
           <div class="course-info">
             <h3>CSC 415 · Database Systems</h3>
-            <p>400 Level · 3 Units · First Semester · 38 Students</p>
+            <p>400 Level · 3 Units · Harmattan Semester · 38 Students</p>
           </div>
           <div class="course-progress">
             <div class="progress-bar">
@@ -117,7 +120,7 @@
         <div class="course-card">
           <div class="course-info">
             <h3>CSC 302 · Operating Systems</h3>
-            <p>300 Level · 3 Units · First Semester · 52 Students</p>
+            <p>300 Level · 3 Units · Harmattan Semester · 52 Students</p>
           </div>
           <div class="course-progress">
             <div class="progress-bar">
@@ -138,7 +141,7 @@
         <div class="course-card">
           <div class="course-info">
             <h3>CSC 410 · Computer Networks</h3>
-            <p>400 Level · 3 Units · First Semester · 35 Students</p>
+            <p>400 Level · 3 Units · Harmattan Semester · 35 Students</p>
           </div>
           <div class="course-progress">
             <div class="progress-bar">
@@ -158,6 +161,7 @@
     </main>
 
     <script src="../../js/sidebar.js"></script>
+    <script src="../../js/menu.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
      <script src="../../js/supabase-config.js"></script>
   </body>

@@ -8,7 +8,10 @@
   </head>
   <body>
     <aside class="sidebar">
-      <div class="logo"><h2>ACADEX</h2></div>
+      <div class="sidebar-header">
+  <div class="logo"><h2>ACADEX</h2></div>
+  <button class="hamburger" id="hamburger" title="Menu" aria-label="Menu">☰</button>
+</div>
       <nav class="sidebar-nav">
         <a href="admin-dashboard.html" class="nav-link">Dashboard</a>
         <a href="admin-students.html" class="nav-link">Students</a>
@@ -46,8 +49,8 @@
           <div class="form-field small">
             <label for="lecSemester">Semester</label>
             <select id="lecSemester" title="Select semester">
-              <option>First</option>
-              <option>Second</option>
+              <option>Harmattan</option>
+              <option>Rain</option>
             </select>
           </div>
           <button class="course-button" id="assignBtn">Assign</button>
@@ -55,7 +58,7 @@
         <p class="form-error" id="lecError"></p>
       </div>
 
-      <div class="table-wrap" style="margin-bottom:40px">
+      <div class="table-wrap">
         <table class="scores">
           <thead>
             <tr>
@@ -87,8 +90,8 @@
           <div class="form-field small">
             <label for="stuSemester">Semester</label>
             <select id="stuSemester" title="Select semester">
-              <option>First</option>
-              <option>Second</option>
+              <option>Harmattan</option>
+              <option>Rain</option>
             </select>
           </div>
           <button class="course-button" id="registerBtn">Register</button>
@@ -114,6 +117,7 @@
     <div id="toast"></div>
 
     <script src="../../js/sidebar.js"></script>
+    <script src="../../js/menu.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="../../js/admin-assignments.js"></script>
   </body>

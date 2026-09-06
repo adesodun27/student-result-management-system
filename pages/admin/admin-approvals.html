@@ -8,7 +8,12 @@
   </head>
   <body>
     <aside class="sidebar">
-      <div class="logo"><h2>ACADEX</h2></div>
+      <div class="sidebar-header">
+        <div class="logo"><h2>ACADEX</h2></div>
+        <button class="hamburger" id="hamburger" title="Menu" aria-label="Menu">
+          ☰
+        </button>
+      </div>
       <nav class="sidebar-nav">
         <a href="admin-dashboard.html" class="nav-link">Dashboard</a>
         <a href="admin-students.html" class="nav-link">Students</a>
@@ -25,7 +30,9 @@
     <main class="main-content">
       <section class="page-head">
         <h1>Approvals</h1>
-        <p>Review results submitted by lecturers and approve them for students</p>
+        <p>
+          Review results submitted by lecturers and approve them for students
+        </p>
       </section>
 
       <!-- LIST VIEW: submitted courses waiting -->
@@ -81,14 +88,19 @@
     <div class="action-bar hidden" id="actionBar">
       <span class="action-hint" id="actionHint"></span>
       <div class="action-btns">
-        <button class="course-button btn-draft" id="returnBtn">Return to Lecturer</button>
-        <button class="course-button" id="approveBtn">Approve &amp; Publish</button>
+        <button class="course-button btn-draft" id="returnBtn">
+          Return to Lecturer
+        </button>
+        <button class="course-button" id="approveBtn">
+          Approve &amp; Publish
+        </button>
       </div>
     </div>
 
     <div id="toast"></div>
 
     <script src="../../js/sidebar.js"></script>
+    <script src="../../js/menu.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="../../js/admin-approvals.js"></script>
   </body>

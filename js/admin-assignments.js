@@ -26,14 +26,14 @@ let lecAssignments = [
   {
     lec: "Dr. Adesodun Oladipo",
     course: "CSC 401 · Software Engineering",
-    semester: "First",
+    semester: "Harmattan",
   },
 ];
 let stuRegistrations = [
   {
     stu: "Adebayo Chidinma (CSC/2021/001)",
     course: "CSC 401 · Software Engineering",
-    semester: "First",
+    semester: "Harmattan",
   },
 ];
 
