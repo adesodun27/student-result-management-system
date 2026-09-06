@@ -3,12 +3,29 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Student Dashboard: View Results</title>
+    <title>Acadex</title>
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
+    <div class="profile">
+        <h2>Welcome back, Student</h2>
+        <div class="name">
+            <h3>Student Name:</h3>
+            <p class="student-id" id="studentName"></p>
+        </div>
+        <div class="matric-number`">
+            <h3>Matric Number</h3>
+            <p class="student-id" id="MatricNumber"></p>
+        </div>
+        <div class="department">
+            <h3> Department:</h3>
+            <p class="student-id" id="department"></p>
+        </div>
+        <div class="level">
+            <h3>Level:</h3>
+        </div>
+    </div>
     <div class="card container">
-        <h1>Welcome back, Student</h1>
         <p class="subtitle">Your results can be viewed from below</p>
         <table class="results-table">
             <thead>
@@ -20,15 +37,15 @@
                     <th> Grade</th>
                 </tr>
             </thead>
-            <tbody id="results body"></tbody>
+            <tbody id="resultsBody"></tbody>
         </table>
         <div class="gpa-container">
             <div class="gpa-card">
-                <h2> GPA</h2>
+                <h3> GPA</h3>
                 <p class="gpa-value" id="sessionGpa"></p>
             </div>
             <div class="gpa-card">
-                <h2>Cumulative GPA (CGPA)</h2>
+                <h3>Cumulative GPA (CGPA)</h3>
                 <p class="gpa-value" id="cumulativeGpa"></p>
             </div>
         </div>
@@ -36,4 +53,5 @@
     </div>
     
 </body>
+<footer></footer>
 </html>
