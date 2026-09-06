@@ -1,17 +1,34 @@
 -- =========================================================================
--- ACADEX DATABASE SCHEMA & INITIALIZATION SCRIPT
+-- ACADEX DATABASE RESET & INITIALIZATION SCRIPT
 -- =========================================================================
 
+-- Drop existing tables in correct dependency order
+DROP TABLE IF EXISTS activity_logs CASCADE;
+DROP TABLE IF EXISTS support_tickets CASCADE;
+DROP TABLE IF EXISTS results CASCADE;
+DROP TABLE IF EXISTS student_registrations CASCADE;
+DROP TABLE IF EXISTS lecturer_courses CASCADE;
+DROP TABLE IF EXISTS courses CASCADE;
+DROP TABLE IF EXISTS profiles CASCADE;
+
+-- Drop old function if it exists
+DROP FUNCTION IF EXISTS get_student_results_with_summary(UUID);
+
 -- 1. PROFILES TABLE (Linked to Supabase Auth)
-CREATE TABLE IF NOT EXISTS profiles (
+CREATE TABLE profiles (
     id UUID PRIMARY KEY REFERENCES auth.users(id) ON DELETE CASCADE,
     full_name TEXT NOT NULL,
     role TEXT NOT NULL CHECK (role IN ('student', 'lecturer', 'admin')),
+    matric_number TEXT UNIQUE,
+    staff_id TEXT UNIQUE,
+    email TEXT UNIQUE NOT NULL,
+    department TEXT,
+    must_change_password BOOLEAN DEFAULT TRUE NOT NULL,
     created_at TIMESTAMP WITH TIME ZONE DEFAULT TIMEZONE('utc'::text, NOW()) NOT NULL
 );
 
 -- 2. COURSES TABLE
-CREATE TABLE IF NOT EXISTS courses (
+CREATE TABLE courses (
     id SERIAL PRIMARY KEY,
     course_code TEXT UNIQUE NOT NULL,
     course_title TEXT NOT NULL,
@@ -21,10 +38,10 @@ CREATE TABLE IF NOT EXISTS courses (
 );
 
 -- 3. LECTURER COURSES TABLE (Many-to-Many Assignment for Lecturers)
-CREATE TABLE IF NOT EXISTS lecturer_courses (
+CREATE TABLE lecturer_courses (
     id SERIAL PRIMARY KEY,
-    lecturer_id UUID REFERENCES profiles(id) ON DELETE CASCADE,
-    course_id INT REFERENCES courses(id) ON DELETE CASCADE,
+    lecturer_id UUID NOT NULL REFERENCES profiles(id) ON DELETE CASCADE,
+    course_id INT NOT NULL REFERENCES courses(id) ON DELETE CASCADE,
     session TEXT NOT NULL,
     semester TEXT NOT NULL,
     created_at TIMESTAMP WITH TIME ZONE DEFAULT TIMEZONE('utc'::text, NOW()) NOT NULL,
@@ -32,10 +49,10 @@ CREATE TABLE IF NOT EXISTS lecturer_courses (
 );
 
 -- 4. STUDENT REGISTRATIONS TABLE (Junction Table)
-CREATE TABLE IF NOT EXISTS student_registrations (
+CREATE TABLE student_registrations (
     id SERIAL PRIMARY KEY,
-    student_id UUID REFERENCES profiles(id) ON DELETE CASCADE,
-    course_id INT REFERENCES courses(id) ON DELETE CASCADE,
+    student_id UUID NOT NULL REFERENCES profiles(id) ON DELETE CASCADE,
+    course_id INT NOT NULL REFERENCES courses(id) ON DELETE CASCADE,
     session TEXT NOT NULL,
     semester TEXT NOT NULL,
     created_at TIMESTAMP WITH TIME ZONE DEFAULT TIMEZONE('utc'::text, NOW()) NOT NULL,
@@ -43,10 +60,10 @@ CREATE TABLE IF NOT EXISTS student_registrations (
 );
 
 -- 5. RESULTS TABLE
-CREATE TABLE IF NOT EXISTS results (
+CREATE TABLE results (
     id SERIAL PRIMARY KEY,
-    student_id UUID REFERENCES profiles(id) ON DELETE CASCADE,
-    course_id INT REFERENCES courses(id) ON DELETE CASCADE,
+    student_id UUID NOT NULL REFERENCES profiles(id) ON DELETE CASCADE,
+    course_id INT NOT NULL REFERENCES courses(id) ON DELETE CASCADE,
     ca_score NUMERIC(5,2) DEFAULT 0.00 CHECK (ca_score >= 0 AND ca_score <= 30),
     exam_score NUMERIC(5,2) DEFAULT 0.00 CHECK (exam_score >= 0 AND exam_score <= 70),
     total_score NUMERIC(5,2) GENERATED ALWAYS AS (ca_score + exam_score) STORED,
@@ -59,9 +76,9 @@ CREATE TABLE IF NOT EXISTS results (
 );
 
 -- 6. SUPPORT TICKETS TABLE
-CREATE TABLE IF NOT EXISTS support_tickets (
+CREATE TABLE support_tickets (
     id SERIAL PRIMARY KEY,
-    student_id UUID REFERENCES profiles(id) ON DELETE CASCADE,
+    student_id UUID NOT NULL REFERENCES profiles(id) ON DELETE CASCADE,
     subject TEXT NOT NULL,
     message TEXT NOT NULL,
     status TEXT DEFAULT 'open' CHECK (status IN ('open', 'in_progress', 'resolved', 'closed')),
@@ -69,13 +86,68 @@ CREATE TABLE IF NOT EXISTS support_tickets (
 );
 
 -- 7. ACTIVITY LOGS TABLE
-CREATE TABLE IF NOT EXISTS activity_logs (
+CREATE TABLE activity_logs (
     id SERIAL PRIMARY KEY,
     user_id UUID REFERENCES profiles(id) ON DELETE SET NULL,
     action TEXT NOT NULL,
     details TEXT,
     created_at TIMESTAMP WITH TIME ZONE DEFAULT TIMEZONE('utc'::text, NOW()) NOT NULL
 );
+
+-- =========================================================================
+-- ROW LEVEL SECURITY (RLS) IMPLEMENTATION
+-- =========================================================================
+
+ALTER TABLE profiles ENABLE ROW LEVEL SECURITY;
+ALTER TABLE courses ENABLE ROW LEVEL SECURITY;
+ALTER TABLE lecturer_courses ENABLE ROW LEVEL SECURITY;
+ALTER TABLE student_registrations ENABLE ROW LEVEL SECURITY;
+ALTER TABLE results ENABLE ROW LEVEL SECURITY;
+ALTER TABLE support_tickets ENABLE ROW LEVEL SECURITY;
+ALTER TABLE activity_logs ENABLE ROW LEVEL SECURITY;
+
+-- Profiles Policies
+CREATE POLICY "Public profiles are viewable by everyone" ON profiles FOR SELECT USING (true);
+CREATE POLICY "Users can update their own profile" ON profiles FOR UPDATE USING (auth.uid() = id);
+CREATE POLICY "Admins can manage profiles" ON profiles FOR ALL TO authenticated USING (
+    EXISTS (SELECT 1 FROM profiles WHERE id = auth.uid() AND role = 'admin')
+);
+
+-- Courses Policies
+CREATE POLICY "Courses viewable by authenticated users" ON courses FOR SELECT TO authenticated USING (true);
+CREATE POLICY "Admins manage courses" ON courses FOR ALL TO authenticated USING (
+    EXISTS (SELECT 1 FROM profiles WHERE id = auth.uid() AND role = 'admin')
+);
+
+-- Lecturer Courses Policies
+CREATE POLICY "Lecturer courses viewable by authenticated users" ON lecturer_courses FOR SELECT TO authenticated USING (true);
+CREATE POLICY "Lecturers and admins manage assigned courses" ON lecturer_courses FOR ALL TO authenticated USING (
+    lecturer_id = auth.uid() OR EXISTS (SELECT 1 FROM profiles WHERE id = auth.uid() AND role = 'admin')
+);
+
+-- Student Registrations Policies
+CREATE POLICY "Student registrations access" ON student_registrations FOR SELECT TO authenticated USING (
+    student_id = auth.uid() OR EXISTS (SELECT 1 FROM profiles WHERE id = auth.uid() AND role IN ('lecturer', 'admin'))
+);
+CREATE POLICY "Students insert own registrations" ON student_registrations FOR INSERT TO authenticated WITH CHECK (student_id = auth.uid());
+
+-- Results Policies
+CREATE POLICY "Results view rules" ON results FOR SELECT TO authenticated USING (
+    (student_id = auth.uid() AND status = 'approved') 
+    OR EXISTS (SELECT 1 FROM profiles WHERE id = auth.uid() AND role IN ('lecturer', 'admin'))
+);
+CREATE POLICY "Lecturers and admins modify results" ON results FOR ALL TO authenticated USING (
+    EXISTS (SELECT 1 FROM profiles WHERE id = auth.uid() AND role IN ('lecturer', 'admin'))
+);
+
+-- Support Tickets Policies
+CREATE POLICY "Users manage support tickets" ON support_tickets FOR ALL TO authenticated USING (student_id = auth.uid() OR EXISTS (SELECT 1 FROM profiles WHERE id = auth.uid() AND role = 'admin'));
+
+-- Activity Logs Policies
+CREATE POLICY "Admins view activity logs" ON activity_logs FOR SELECT TO authenticated USING (
+    EXISTS (SELECT 1 FROM profiles WHERE id = auth.uid() AND role = 'admin')
+);
+CREATE POLICY "System inserts activity logs" ON activity_logs FOR INSERT TO authenticated WITH CHECK (true);
 
 -- =========================================================================
 -- DATABASE RPC FUNCTIONS
@@ -88,13 +160,11 @@ DECLARE
     total_units INT;
     cumulative_gpa NUMERIC(3,2);
 BEGIN
-    -- Calculate total units
     SELECT COALESCE(SUM(c.credit_units), 0) INTO total_units
     FROM student_registrations sr
     JOIN courses c ON sr.course_id = c.id
     WHERE sr.student_id = p_student_id;
 
-    -- Calculate GPA
     SELECT COALESCE(
         ROUND(
             SUM(
@@ -111,13 +181,12 @@ BEGIN
     ) INTO cumulative_gpa
     FROM student_registrations sr
     JOIN courses c ON sr.course_id = c.id
-    LEFT JOIN results r ON r.course_id = c.id 
+    JOIN results r ON r.course_id = c.id 
         AND r.student_id = sr.student_id 
         AND r.session = sr.session 
         AND r.semester = sr.semester
-    WHERE sr.student_id = p_student_id;
+    WHERE sr.student_id = p_student_id AND r.grade IS NOT NULL;
 
-    -- Build and return the final JSON object
     SELECT json_build_object(
         'courses', (
             COALESCE(json_agg(
