@@ -1,0 +1,137 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Lecturer Dashboard · ACADEX</title>
+    <link rel="stylesheet" href="../css/style.css" />
+  </head>
+  <body>
+    <aside class="sidebar">
+      <div class="logo"><h2>ACADEX</h2></div>
+      <nav class="sidebar-nav">
+        <a href="lecturer-dashboard.html" class="nav-link active">Dashboard</a>
+        <a href="lecturer-profile.html" class="nav-link">Profile</a>
+      </nav>
+      <div class="sidebar-bottom">
+        <a href="lecturer-login.html" class="nav-link logout">Logout</a>
+      </div>
+    </aside>
+
+    <main class="main-content">
+      <!-- Welcome / Header -->
+      <section class="lecturer-header">
+        <div class="welcome-text">
+          <p class="welcome-message">Welcome, Dr. Adesodun 👋</p>
+          <p class="lecturer-info">
+            Staff ID · LEC/2019/0142 · Computer Science
+          </p>
+        </div>
+
+        <div class="session-selector">
+          <select id="sessionSelect">
+            <option value="2024/2025-first">2024/2025 · First</option>
+            <option value="2024/2025-second">2024/2025 · Second</option>
+          </select>
+        </div>
+      </section>
+
+      <!-- Summary Cards -->
+      <section class="summary-cards">
+        <div class="summary-card">
+          <p>Assigned Courses</p>
+          <h3>4</h3>
+        </div>
+        <div class="summary-card pending-card">
+          <p>Pending</p>
+          <h3>3</h3>
+        </div>
+        <div class="summary-card submitted-card">
+          <p>Submitted</p>
+          <h3>1</h3>
+        </div>
+        <div class="summary-card approved-card">
+          <p>Approved</p>
+          <h3>0</h3>
+        </div>
+      </section>
+
+      <!-- Needs Attention -->
+      <div class="attention">
+        <p><strong>3 courses need your attention</strong> — 2 not started, 1 draft not yet submitted.</p>
+      </div>
+
+      <!-- My Courses -->
+      <section class="courses-section">
+        <div class="section-title">
+          <h2>My Courses</h2>
+          <span>2024/2025 · First Semester</span>
+        </div>
+
+        <!-- Course 1 -->
+        <div class="course-card">
+          <div class="course-info">
+            <h3>CSC 401 · Software Engineering</h3>
+            <p>400 Level · 3 Units · First Semester · 40 Students</p>
+          </div>
+          <div class="course-progress">
+            <div class="progress-bar">
+              <div class="progress-fill progress-warning"></div>
+            </div>
+            <p>24 / 40 scored</p>
+          </div>
+          <span class="status-badge status-draft">Draft</span>
+          <button class="course-button" onclick="location.href='score-entry.html?course=CSC401'">Continue</button>
+        </div>
+
+        <!-- Course 2 -->
+        <div class="course-card">
+          <div class="course-info">
+            <h3>CSC 415 · Database Systems</h3>
+            <p>400 Level · 3 Units · First Semester · 38 Students</p>
+          </div>
+          <div class="course-progress">
+            <div class="progress-bar">
+              <div class="progress-fill progress-danger"></div>
+            </div>
+            <p>0 / 38 scored</p>
+          </div>
+          <span class="status-badge status-not-started">Not Started</span>
+          <button class="course-button" onclick="location.href='score-entry.html?course=CSC415'">Enter Scores</button>
+        </div>
+
+        <!-- Course 3 -->
+        <div class="course-card">
+          <div class="course-info">
+            <h3>CSC 302 · Operating Systems</h3>
+            <p>300 Level · 3 Units · First Semester · 52 Students</p>
+          </div>
+          <div class="course-progress">
+            <div class="progress-bar">
+              <div class="progress-fill progress-success"></div>
+            </div>
+            <p>52 / 52 scored</p>
+          </div>
+          <span class="status-badge status-submitted">Submitted</span>
+          <button class="course-button" onclick="location.href='score-entry.html?course=CSC302'">View</button>
+        </div>
+
+        <!-- Course 4 -->
+        <div class="course-card">
+          <div class="course-info">
+            <h3>CSC 410 · Computer Networks</h3>
+            <p>400 Level · 3 Units · First Semester · 35 Students</p>
+          </div>
+          <div class="course-progress">
+            <div class="progress-bar">
+              <div class="progress-fill progress-danger"></div>
+            </div>
+            <p>0 / 35 scored</p>
+          </div>
+          <span class="status-badge status-not-started">Not Started</span>
+          <button class="course-button" onclick="location.href='score-entry.html?course=CSC410'">Enter Scores</button>
+        </div>
+      </section>
+    </main>
+  </body>
+</html>
