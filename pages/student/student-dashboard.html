@@ -1,57 +1,27 @@
 <!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Acadex</title>
-    <link rel="stylesheet" href="style.css">
-</head>
-<body>
-    <div class="profile">
-        <h2>Welcome back, Student</h2>
-        <div class="name">
-            <h3>Student Name:</h3>
-            <p class="student-id" id="studentName"></p>
-        </div>
-        <div class="matric-number`">
-            <h3>Matric Number</h3>
-            <p class="student-id" id="MatricNumber"></p>
-        </div>
-        <div class="department">
-            <h3> Department:</h3>
-            <p class="student-id" id="department"></p>
-        </div>
-        <div class="level">
-            <h3>Level:</h3>
-        </div>
-    </div>
-    <div class="card container">
-        <p class="subtitle">Your results can be viewed from below</p>
-        <table class="results-table">
-            <thead>
-                <tr>
-                    <th>Course</th>
-                    <th> Continuous Assessment Score</th>
-                    <th> Exam Score</th>
-                    <th> Total Score</th>
-                    <th> Grade</th>
-                </tr>
-            </thead>
-            <tbody id="resultsBody"></tbody>
-        </table>
-        <div class="gpa-container">
-            <div class="gpa-card">
-                <h3> GPA</h3>
-                <p class="gpa-value" id="sessionGpa"></p>
-            </div>
-            <div class="gpa-card">
-                <h3>Cumulative GPA (CGPA)</h3>
-                <p class="gpa-value" id="cumulativeGpa"></p>
-            </div>
-        </div>
-        
-    </div>
-    
-</body>
-<footer></footer>
-</html>
+<html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0"><title>Adacax | Student Dashboard</title><link rel="stylesheet" href="/css/student style.css"></head>
+<body><div class="portal">
+<aside class="sidebar"><div class="logo">ACADEX</div><nav class="nav">
+<a class="active" href="student-dashboard.html">Dashboard</a><a href="result.html">My Results</a><a href="student-profile.html">My Profile</a><a href="courses.html">Courses</a>
+</nav><a class="logout" href="student-login.html">Logout</a></aside>
+<main class="main">
+<div class="topbar"><div class="welcome"><h1>Welcome, John Adekunle 👋</h1><p>Student ID · LEC/2024/00142 · Computer Science</p></div><div class="session">2024/2025 · First Semester ▾</div></div>
+<div class="grid">
+<div class="card"><div class="stat-title">Current Level</div><div class="stat">400 Level</div></div>
+<div class="card"><div class="stat-title">Current GPA</div><div class="stat green">4.12</div></div>
+<div class="card"><div class="stat-title">Completed Courses</div><div class="stat">18</div></div>
+<div class="card"><div class="stat-title">Academic Status</div><div class="stat green">Good Standing</div></div>
+</div>
+<section class="section"><div class="alert"><strong>Result Update</strong> — Your 2024/2025 First Semester results are available. <a href="result.html" style="color:#a36a12;font-weight:700">View Result →</a></div></section>
+<section class="section"><div class="section-title"><h2>Recent Results</h2><a class="btn secondary" href="result.html">View All Results</a></div>
+<table class="result-table"><thead><tr><th>Course Code</th><th>Course Title</th><th>Unit</th><th>Score</th><th>Grade</th><th>Status</th></tr></thead>
+<tbody><tr><td>CSC 401</td><td>Software Engineering</td><td>3</td><td>78</td><td>A</td><td><span class="badge pass">Passed</span></td></tr>
+<tr><td>CSC 415</td><td>Database Systems</td><td>3</td><td>71</td><td>A</td><td><span class="badge pass">Passed</span></td></tr>
+<tr><td>CSC 402</td><td>Computer Architecture</td><td>3</td><td>64</td><td>B</td><td><span class="badge pass">Passed</span></td></tr></tbody></table></section>
+<section class="section"><div class="section-title"><h2>Academic Overview</h2></div><div class="kpi-row">
+<div class="card"><div class="stat-title">CGPA</div><div class="stat green">4.12 / 5.00</div><p class="muted">Overall academic performance</p></div>
+<div class="card"><div class="stat-title">Total Units Earned</div><div class="stat">96</div><p class="muted">Out of 120 registered units</p></div>
+<div class="card"><div class="stat-title">Expected Graduation</div><div class="stat">2026</div><p class="muted">Computer Science</p></div>
+</div></section>
+<div class="footer-note">© 2025 Adacax Student Result Portal</div>
+</main></div></body></html>
