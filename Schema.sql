@@ -1,5 +1,5 @@
 -- =========================================================================
--- ACADEX PRODUCTION SCHEMA & SECURITY SCRIPT 
+-- ACADEX PRODUCTION SCHEMA & SECURITY SCRIPT (v7.6 - WORKFLOW REFINEMENT)
 -- =========================================================================
 
 -- Drop functions and types safely first
@@ -84,7 +84,7 @@ CREATE TRIGGER trg_protect_profile_fields
     FOR EACH ROW
     EXECUTE FUNCTION prevent_unauthorized_profile_updates();
 
--- 2. COURSES TABLE (With strict department and uppercase code requirements)
+-- 2. COURSES TABLE
 CREATE TABLE courses (
     id SERIAL PRIMARY KEY,
     course_code TEXT UNIQUE NOT NULL CHECK (course_code = UPPER(BTRIM(course_code)) AND BTRIM(course_code) <> ''),
@@ -95,7 +95,7 @@ CREATE TABLE courses (
     created_at TIMESTAMPTZ NOT NULL DEFAULT now()
 );
 
--- 3. LECTURER COURSES TABLE (With Academic Session Format Enforcement YYYY/YYYY)
+-- 3. LECTURER COURSES TABLE
 CREATE TABLE lecturer_courses (
     id SERIAL PRIMARY KEY,
     lecturer_id UUID NOT NULL REFERENCES profiles(id) ON DELETE RESTRICT,
@@ -106,7 +106,7 @@ CREATE TABLE lecturer_courses (
     CONSTRAINT unique_lecturer_course_session_semester UNIQUE (lecturer_id, course_id, session, semester)
 );
 
--- 4. STUDENT REGISTRATIONS TABLE (With Academic Session Format Enforcement YYYY/YYYY)
+-- 4. STUDENT REGISTRATIONS TABLE
 CREATE TABLE student_registrations (
     id SERIAL PRIMARY KEY,
     student_id UUID NOT NULL REFERENCES profiles(id) ON DELETE RESTRICT,
@@ -182,6 +182,7 @@ BEGIN
     IF NEW.status IS DISTINCT FROM OLD.status THEN
         IF (OLD.status = 'draft' AND NEW.status = 'submitted')
            OR (OLD.status = 'submitted' AND NEW.status = 'approved')
+           OR (OLD.status = 'submitted' AND NEW.status = 'draft')
            OR (OLD.status = 'approved' AND NEW.status = 'draft') THEN
             NULL;
         ELSE
@@ -370,7 +371,7 @@ CREATE POLICY "Admins view activity logs" ON activity_logs FOR SELECT TO authent
 );
 
 -- =========================================================================
--- WORKFLOW & REPORTING RPC FUNCTIONS (Fully Schema-Qualified with Safe Search Paths)
+-- WORKFLOW & REPORTING RPC FUNCTIONS (Fully Schema-Qualified)
 -- =========================================================================
 
 CREATE OR REPLACE FUNCTION submit_result(p_result_id INT)
@@ -438,21 +439,31 @@ $$ LANGUAGE plpgsql SECURITY DEFINER SET search_path = '';
 
 CREATE OR REPLACE FUNCTION reopen_result(p_result_id INT)
 RETURNS VOID AS $$
+DECLARE
+    v_current_status TEXT;
 BEGIN
     IF public.get_user_role() <> 'admin' THEN
-        RAISE EXCEPTION 'Unauthorized: Only administrators can reopen results.';
+        RAISE EXCEPTION 'Unauthorized: Only administrators can reopen or return results.';
+    END IF;
+
+    SELECT status INTO v_current_status
+    FROM public.results
+    WHERE id = p_result_id;
+
+    IF NOT FOUND THEN
+        RAISE EXCEPTION 'Result not found.';
+    END IF;
+
+    IF v_current_status NOT IN ('submitted', 'approved') THEN
+        RAISE EXCEPTION 'Result must be in submitted or approved status to be returned to draft.';
     END IF;
 
     UPDATE public.results
     SET status = 'draft'
-    WHERE id = p_result_id AND status = 'approved';
-
-    IF NOT FOUND THEN
-        RAISE EXCEPTION 'Result must be approved to be reopened.';
-    END IF;
+    WHERE id = p_result_id;
 
     INSERT INTO public.activity_logs (user_id, action, entity_type, entity_id, details)
-    VALUES (auth.uid(), 'REOPEN_RESULT', 'results', p_result_id::TEXT, jsonb_build_object('status', 'draft'));
+    VALUES (auth.uid(), 'REOPEN_RESULT', 'results', p_result_id::TEXT, jsonb_build_object('previous_status', v_current_status, 'status', 'draft'));
 END;
 $$ LANGUAGE plpgsql SECURITY DEFINER SET search_path = '';
 
