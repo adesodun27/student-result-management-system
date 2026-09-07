@@ -1,6 +1,27 @@
 -- =========================================================================
--- ACADEX PRODUCTION SCHEMA & SECURITY SCRIPT (v7.1 - IDEMPOTENT FIX)
+-- ACADEX PRODUCTION SCHEMA & SECURITY SCRIPT (v7.2 - SESSION FORMAT FIX)
 -- =========================================================================
+
+-- Drop functions and types safely first
+DROP FUNCTION IF EXISTS submit_result(INT) CASCADE;
+DROP FUNCTION IF EXISTS approve_result(INT) CASCADE;
+DROP FUNCTION IF EXISTS reopen_result(INT) CASCADE;
+DROP FUNCTION IF EXISTS get_student_results_with_summary(UUID) CASCADE;
+DROP FUNCTION IF EXISTS public.get_user_role() CASCADE;
+DROP FUNCTION IF EXISTS update_updated_at_column() CASCADE;
+DROP FUNCTION IF EXISTS prevent_unauthorized_profile_updates() CASCADE;
+DROP FUNCTION IF EXISTS prevent_result_registration_change() CASCADE;
+DROP FUNCTION IF EXISTS calculate_result_grade() CASCADE;
+DROP FUNCTION IF EXISTS enforce_result_status_transition() CASCADE;
+
+-- Drop existing tables cleanly in correct dependency order
+DROP TABLE IF EXISTS results CASCADE;
+DROP TABLE IF EXISTS student_registrations CASCADE;
+DROP TABLE IF EXISTS lecturer_courses CASCADE;
+DROP TABLE IF EXISTS support_tickets CASCADE;
+DROP TABLE IF EXISTS activity_logs CASCADE;
+DROP TABLE IF EXISTS courses CASCADE;
+DROP TABLE IF EXISTS profiles CASCADE;
 
 -- 0. SECURITY, TRIGGER & HELPER FUNCTIONS
 CREATE OR REPLACE FUNCTION public.get_user_role()
@@ -22,7 +43,7 @@ END;
 $$ LANGUAGE plpgsql;
 
 -- 1. PROFILES TABLE
-CREATE TABLE IF NOT EXISTS profiles (
+CREATE TABLE profiles (
     id UUID PRIMARY KEY REFERENCES auth.users(id) ON DELETE RESTRICT,
     full_name TEXT NOT NULL CHECK (BTRIM(full_name) <> ''),
     role TEXT NOT NULL CHECK (role IN ('student', 'lecturer', 'admin')),
@@ -58,14 +79,13 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql SECURITY DEFINER SET search_path = '';
 
-DROP TRIGGER IF EXISTS trg_protect_profile_fields ON profiles;
 CREATE TRIGGER trg_protect_profile_fields
     BEFORE UPDATE ON profiles
     FOR EACH ROW
     EXECUTE FUNCTION prevent_unauthorized_profile_updates();
 
 -- 2. COURSES TABLE
-CREATE TABLE IF NOT EXISTS courses (
+CREATE TABLE courses (
     id SERIAL PRIMARY KEY,
     course_code TEXT UNIQUE NOT NULL CHECK (course_code = UPPER(BTRIM(course_code)) AND BTRIM(course_code) <> ''),
     course_title TEXT NOT NULL CHECK (BTRIM(course_title) <> ''),
@@ -75,30 +95,30 @@ CREATE TABLE IF NOT EXISTS courses (
     created_at TIMESTAMPTZ NOT NULL DEFAULT now()
 );
 
--- 3. LECTURER COURSES TABLE
-CREATE TABLE IF NOT EXISTS lecturer_courses (
+-- 3. LECTURER COURSES TABLE (With Academic Session Format Enforcement)
+CREATE TABLE lecturer_courses (
     id SERIAL PRIMARY KEY,
     lecturer_id UUID NOT NULL REFERENCES profiles(id) ON DELETE RESTRICT,
     course_id INT NOT NULL REFERENCES courses(id) ON DELETE RESTRICT,
-    session TEXT NOT NULL CHECK (BTRIM(session) <> ''),
+    session TEXT NOT NULL CHECK (session ~ '^\d{4}/\d{4}$'),
     semester TEXT NOT NULL CHECK (semester IN ('Harmattan', 'Rain')),
     created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
     CONSTRAINT unique_lecturer_course_session_semester UNIQUE (lecturer_id, course_id, session, semester)
 );
 
--- 4. STUDENT REGISTRATIONS TABLE
-CREATE TABLE IF NOT EXISTS student_registrations (
+-- 4. STUDENT REGISTRATIONS TABLE (With Academic Session Format Enforcement)
+CREATE TABLE student_registrations (
     id SERIAL PRIMARY KEY,
     student_id UUID NOT NULL REFERENCES profiles(id) ON DELETE RESTRICT,
     course_id INT NOT NULL REFERENCES courses(id) ON DELETE RESTRICT,
-    session TEXT NOT NULL CHECK (BTRIM(session) <> ''),
+    session TEXT NOT NULL CHECK (session ~ '^\d{4}/\d{4}$'),
     semester TEXT NOT NULL CHECK (semester IN ('Harmattan', 'Rain')),
     created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
     CONSTRAINT unique_student_course_registration UNIQUE (student_id, course_id, session, semester)
 );
 
--- 5. RESULTS TABLE (Immutable Registration, Auto-Grade, & Workflow Enforcement)
-CREATE TABLE IF NOT EXISTS results (
+-- 5. RESULTS TABLE
+CREATE TABLE results (
     id SERIAL PRIMARY KEY,
     registration_id INT NOT NULL UNIQUE REFERENCES student_registrations(id) ON DELETE RESTRICT,
     ca_score NUMERIC(5,2) NOT NULL DEFAULT 0.00 CHECK (ca_score >= 0 AND ca_score <= 30),
@@ -110,7 +130,7 @@ CREATE TABLE IF NOT EXISTS results (
     updated_at TIMESTAMPTZ NOT NULL DEFAULT now()
 );
 
--- Trigger to make registration_id immutable after insertion
+-- Triggers for Results table
 CREATE OR REPLACE FUNCTION prevent_result_registration_change()
 RETURNS TRIGGER AS $$
 BEGIN
@@ -121,13 +141,11 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql;
 
-DROP TRIGGER IF EXISTS trg_protect_result_registration ON results;
 CREATE TRIGGER trg_protect_result_registration
     BEFORE UPDATE ON results
     FOR EACH ROW
     EXECUTE FUNCTION prevent_result_registration_change();
 
--- Trigger to automatically calculate letter grade safely from score inputs
 CREATE OR REPLACE FUNCTION calculate_result_grade()
 RETURNS TRIGGER AS $$
 DECLARE
@@ -153,13 +171,11 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql;
 
-DROP TRIGGER IF EXISTS trg_auto_calculate_grade ON results;
 CREATE TRIGGER trg_auto_calculate_grade
     BEFORE INSERT OR UPDATE OF ca_score, exam_score ON results
     FOR EACH ROW
     EXECUTE FUNCTION calculate_result_grade();
 
--- Trigger to enforce strict academic workflow state transitions
 CREATE OR REPLACE FUNCTION enforce_result_status_transition()
 RETURNS TRIGGER AS $$
 BEGIN
@@ -167,7 +183,6 @@ BEGIN
         IF (OLD.status = 'draft' AND NEW.status = 'submitted')
            OR (OLD.status = 'submitted' AND NEW.status = 'approved')
            OR (OLD.status = 'approved' AND NEW.status = 'draft') THEN
-            -- Valid transition
             NULL;
         ELSE
             RAISE EXCEPTION 'Invalid result status transition from % to %.', OLD.status, NEW.status;
@@ -177,20 +192,18 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql;
 
-DROP TRIGGER IF EXISTS trg_enforce_result_workflow ON results;
 CREATE TRIGGER trg_enforce_result_workflow
     BEFORE UPDATE ON results
     FOR EACH ROW
     EXECUTE FUNCTION enforce_result_status_transition();
 
-DROP TRIGGER IF EXISTS trg_results_updated_at ON results;
 CREATE TRIGGER trg_results_updated_at
     BEFORE UPDATE ON results
     FOR EACH ROW
     EXECUTE FUNCTION update_updated_at_column();
 
 -- 6. SUPPORT TICKETS TABLE
-CREATE TABLE IF NOT EXISTS support_tickets (
+CREATE TABLE support_tickets (
     id SERIAL PRIMARY KEY,
     student_id UUID NOT NULL REFERENCES profiles(id) ON DELETE RESTRICT,
     subject TEXT NOT NULL CHECK (BTRIM(subject) <> ''),
@@ -200,14 +213,13 @@ CREATE TABLE IF NOT EXISTS support_tickets (
     updated_at TIMESTAMPTZ NOT NULL DEFAULT now()
 );
 
-DROP TRIGGER IF EXISTS trg_support_tickets_updated_at ON support_tickets;
 CREATE TRIGGER trg_support_tickets_updated_at
     BEFORE UPDATE ON support_tickets
     FOR EACH ROW
     EXECUTE FUNCTION update_updated_at_column();
 
 -- 7. ACTIVITY LOGS TABLE
-CREATE TABLE IF NOT EXISTS activity_logs (
+CREATE TABLE activity_logs (
     id BIGINT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
     user_id UUID REFERENCES profiles(id) ON DELETE SET NULL,
     action TEXT NOT NULL,
@@ -221,7 +233,7 @@ CREATE TABLE IF NOT EXISTS activity_logs (
 -- PERFORMANCE INDEXES
 -- =========================================================================
 
-CREATE INDEX IF NOT EXISTS idx_registrations_student ON student_registrations(student_id, session, semester);
+CREATE INDEX idx_registrations_student ON student_registrations(student_id, session, semester);
 
 -- =========================================================================
 -- ROW LEVEL SECURITY (RLS) IMPLEMENTATION
@@ -235,38 +247,28 @@ ALTER TABLE results ENABLE ROW LEVEL SECURITY;
 ALTER TABLE support_tickets ENABLE ROW LEVEL SECURITY;
 ALTER TABLE activity_logs ENABLE ROW LEVEL SECURITY;
 
-DROP POLICY IF EXISTS "Users view own profile or staff view all" ON profiles;
 CREATE POLICY "Users view own profile or staff view all" ON profiles FOR SELECT TO authenticated USING (
     auth.uid() = id OR public.get_user_role() IN ('lecturer', 'admin')
 );
 
-DROP POLICY IF EXISTS "Users update own basic profile" ON profiles;
 CREATE POLICY "Users update own basic profile" ON profiles FOR UPDATE TO authenticated 
 USING (auth.uid() = id) 
 WITH CHECK (auth.uid() = id);
 
-DROP POLICY IF EXISTS "Admins can manage profiles" ON profiles;
 CREATE POLICY "Admins can manage profiles" ON profiles FOR ALL TO authenticated USING (
     public.get_user_role() = 'admin'
 );
 
-DROP POLICY IF EXISTS "Courses viewable by authenticated users" ON courses;
 CREATE POLICY "Courses viewable by authenticated users" ON courses FOR SELECT TO authenticated USING (true);
-
-DROP POLICY IF EXISTS "Admins manage courses" ON courses;
 CREATE POLICY "Admins manage courses" ON courses FOR ALL TO authenticated USING (
     public.get_user_role() = 'admin'
 );
 
-DROP POLICY IF EXISTS "Lecturer courses viewable by authenticated users" ON lecturer_courses;
 CREATE POLICY "Lecturer courses viewable by authenticated users" ON lecturer_courses FOR SELECT TO authenticated USING (true);
-
-DROP POLICY IF EXISTS "Admins manage lecturer courses" ON lecturer_courses;
 CREATE POLICY "Admins manage lecturer courses" ON lecturer_courses FOR ALL TO authenticated USING (
     public.get_user_role() = 'admin'
 );
 
-DROP POLICY IF EXISTS "Student registrations access" ON student_registrations;
 CREATE POLICY "Student registrations access" ON student_registrations FOR SELECT TO authenticated USING (
     student_id = auth.uid() 
     OR public.get_user_role() = 'admin'
@@ -281,12 +283,10 @@ CREATE POLICY "Student registrations access" ON student_registrations FOR SELECT
     )
 );
 
-DROP POLICY IF EXISTS "Students insert own registrations" ON student_registrations;
 CREATE POLICY "Students insert own registrations" ON student_registrations FOR INSERT TO authenticated WITH CHECK (
     student_id = auth.uid() AND public.get_user_role() = 'student'
 );
 
-DROP POLICY IF EXISTS "Results view rules" ON results;
 CREATE POLICY "Results view rules" ON results FOR SELECT TO authenticated USING (
     EXISTS (
         SELECT 1 FROM student_registrations sr
@@ -306,7 +306,6 @@ CREATE POLICY "Results view rules" ON results FOR SELECT TO authenticated USING 
     )
 );
 
-DROP POLICY IF EXISTS "Lecturers insert assigned course results" ON results;
 CREATE POLICY "Lecturers insert assigned course results" ON results FOR INSERT TO authenticated WITH CHECK (
     public.get_user_role() = 'admin'
     OR (
@@ -322,7 +321,6 @@ CREATE POLICY "Lecturers insert assigned course results" ON results FOR INSERT T
     )
 );
 
-DROP POLICY IF EXISTS "Lecturers update assigned course results" ON results;
 CREATE POLICY "Lecturers update assigned course results" ON results FOR UPDATE TO authenticated USING (
     public.get_user_role() = 'admin'
     OR (
@@ -351,33 +349,28 @@ CREATE POLICY "Lecturers update assigned course results" ON results FOR UPDATE T
     )
 );
 
-DROP POLICY IF EXISTS "Admins delete results" ON results;
 CREATE POLICY "Admins delete results" ON results FOR DELETE TO authenticated USING (
     public.get_user_role() = 'admin'
 );
 
-DROP POLICY IF EXISTS "Students insert support tickets" ON support_tickets;
 CREATE POLICY "Students insert support tickets" ON support_tickets FOR INSERT TO authenticated WITH CHECK (
     student_id = auth.uid() AND public.get_user_role() = 'student'
 );
 
-DROP POLICY IF EXISTS "Users view support tickets" ON support_tickets;
 CREATE POLICY "Users view support tickets" ON support_tickets FOR SELECT TO authenticated USING (
     student_id = auth.uid() OR public.get_user_role() = 'admin'
 );
 
-DROP POLICY IF EXISTS "Admins manage support tickets" ON support_tickets;
 CREATE POLICY "Admins manage support tickets" ON support_tickets FOR UPDATE TO authenticated USING (
     public.get_user_role() = 'admin'
 );
 
-DROP POLICY IF EXISTS "Admins view activity logs" ON activity_logs;
 CREATE POLICY "Admins view activity logs" ON activity_logs FOR SELECT TO authenticated USING (
     public.get_user_role() = 'admin'
 );
 
 -- =========================================================================
--- WORKFLOW & REPORTING RPC FUNCTIONS (Hardened Search Paths)
+-- WORKFLOW & REPORTING RPC FUNCTIONS
 -- =========================================================================
 
 CREATE OR REPLACE FUNCTION submit_result(p_result_id INT)
