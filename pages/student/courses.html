@@ -1,0 +1,122 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Courses · ACADEX</title>
+    <link rel="stylesheet" href="../../css/style.css" />
+  </head>
+  <body>
+    <aside class="sidebar">
+      <div class="sidebar-header">
+        <div class="logo"><h2>ACADEX</h2></div>
+        <button class="hamburger" id="hamburger" title="Menu" aria-label="Menu">☰</button>
+      </div>
+      <nav class="sidebar-nav">
+        <a href="student-dashboard.html" class="nav-link">Dashboard</a>
+        <a href="result.html" class="nav-link">My Results</a>
+        <a href="courses.html" class="nav-link">Courses</a>
+        <a href="student-profile.html" class="nav-link">My Profile</a>
+      </nav>
+      <div class="sidebar-bottom">
+        <a href="student-login.html" class="nav-link logout">Logout</a>
+      </div>
+    </aside>
+
+    <main class="main-content">
+      <section class="lecturer-header">
+        <div class="welcome-text">
+          <p class="welcome-message">My Courses</p>
+          <p class="lecturer-info">Registered courses for the current academic session</p>
+        </div>
+        <div class="session-selector">
+          <select id="sessionSelect" title="Select session">
+            <option>2024/2025 · Harmattan</option>
+            <option>2024/2025 · Rain</option>
+          </select>
+        </div>
+      </section>
+
+      <div class="attention">
+        <p><strong>18 units registered</strong> — Your course registration is complete for this semester.</p>
+      </div>
+
+      <section class="courses-section">
+        <div class="course-card">
+          <div class="course-info">
+            <h3>CSC 401 · Software Engineering</h3>
+            <p>400 Level · 3 Units · Harmattan Semester</p>
+          </div>
+          <div class="course-progress">
+            <div class="progress-bar"><div class="progress-fill progress-success"></div></div>
+            <p>Result available</p>
+          </div>
+          <span class="status-badge status-approved">Completed</span>
+        </div>
+
+        <div class="course-card">
+          <div class="course-info">
+            <h3>CSC 415 · Database Systems</h3>
+            <p>400 Level · 3 Units · Harmattan Semester</p>
+          </div>
+          <div class="course-progress">
+            <div class="progress-bar"><div class="progress-fill progress-success"></div></div>
+            <p>Result available</p>
+          </div>
+          <span class="status-badge status-approved">Completed</span>
+        </div>
+
+        <div class="course-card">
+          <div class="course-info">
+            <h3>CSC 402 · Computer Architecture</h3>
+            <p>400 Level · 3 Units · Harmattan Semester</p>
+          </div>
+          <div class="course-progress">
+            <div class="progress-bar"><div class="progress-fill progress-success"></div></div>
+            <p>Result available</p>
+          </div>
+          <span class="status-badge status-approved">Completed</span>
+        </div>
+
+        <div class="course-card">
+          <div class="course-info">
+            <h3>CSC 410 · Computer Networks</h3>
+            <p>400 Level · 3 Units · Harmattan Semester</p>
+          </div>
+          <div class="course-progress">
+            <div class="progress-bar"><div class="progress-fill progress-success"></div></div>
+            <p>Result available</p>
+          </div>
+          <span class="status-badge status-approved">Completed</span>
+        </div>
+
+        <div class="course-card">
+          <div class="course-info">
+            <h3>GST 402 · Entrepreneurship</h3>
+            <p>400 Level · 3 Units · Harmattan Semester</p>
+          </div>
+          <div class="course-progress">
+            <div class="progress-bar"><div class="progress-fill progress-success"></div></div>
+            <p>Result available</p>
+          </div>
+          <span class="status-badge status-approved">Completed</span>
+        </div>
+
+        <div class="course-card">
+          <div class="course-info">
+            <h3>CSC 418 · Web Application Development</h3>
+            <p>400 Level · 3 Units · Harmattan Semester</p>
+          </div>
+          <div class="course-progress">
+            <div class="progress-bar"><div class="progress-fill progress-success"></div></div>
+            <p>Result available</p>
+          </div>
+          <span class="status-badge status-approved">Completed</span>
+        </div>
+      </section>
+    </main>
+
+    <script src="../../js/sidebar.js"></script>
+    <script src="../../js/menu.js"></script>
+  </body>
+</html>

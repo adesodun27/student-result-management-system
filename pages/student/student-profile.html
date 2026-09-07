@@ -1,0 +1,107 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>My Profile · ACADEX</title>
+    <link rel="stylesheet" href="../../css/style.css" />
+  </head>
+  <body>
+    <aside class="sidebar">
+      <div class="sidebar-header">
+        <div class="logo"><h2>ACADEX</h2></div>
+        <button class="hamburger" id="hamburger" title="Menu" aria-label="Menu">☰</button>
+      </div>
+      <nav class="sidebar-nav">
+        <a href="student-dashboard.html" class="nav-link">Dashboard</a>
+        <a href="result.html" class="nav-link">My Results</a>
+        <a href="courses.html" class="nav-link">Courses</a>
+        <a href="student-profile.html" class="nav-link">My Profile</a>
+      </nav>
+      <div class="sidebar-bottom">
+        <a href="student-login.html" class="nav-link logout">Logout</a>
+      </div>
+    </aside>
+
+    <main class="main-content">
+      <section class="page-head">
+        <h1>My Profile</h1>
+        <p>View your student information and academic details</p>
+      </section>
+
+      <!-- Academic details -->
+      <div class="profile-card" style="max-width:640px">
+        <div class="profile-top">
+          <div class="avatar" id="avatar">JA</div>
+          <div>
+            <h2>John Adekunle</h2>
+            <span class="profile-role">Student</span>
+          </div>
+        </div>
+
+        <div class="profile-details">
+          <div class="detail-row">
+            <span class="detail-label">Full Name</span>
+            <span class="detail-value">John Adekunle</span>
+          </div>
+          <div class="detail-row">
+            <span class="detail-label">Matric Number</span>
+            <span class="detail-value">CSC/2021/001</span>
+          </div>
+          <div class="detail-row">
+            <span class="detail-label">Department</span>
+            <span class="detail-value">Computer Science</span>
+          </div>
+          <div class="detail-row">
+            <span class="detail-label">Level</span>
+            <span class="detail-value">400 Level</span>
+          </div>
+          <div class="detail-row">
+            <span class="detail-label">Programme</span>
+            <span class="detail-value">B.Sc. Computer Science</span>
+          </div>
+          <div class="detail-row">
+            <span class="detail-label">Session</span>
+            <span class="detail-value">2024/2025</span>
+          </div>
+          <div class="detail-row">
+            <span class="detail-label">Academic Status</span>
+            <span class="detail-value green">Good Standing</span>
+          </div>
+        </div>
+
+        <p class="profile-note">To update your details, contact the administrator.</p>
+      </div>
+
+      <!-- Contact details -->
+      <div class="profile-card" style="max-width:640px; margin-top:22px">
+        <div class="profile-top" style="padding-bottom:16px; margin-bottom:16px">
+          <div>
+            <h2 style="font-size:16px">Contact Details</h2>
+          </div>
+        </div>
+        <div class="profile-details">
+          <div class="detail-row">
+            <span class="detail-label">Email Address</span>
+            <span class="detail-value">john.adekunle@example.com</span>
+          </div>
+          <div class="detail-row">
+            <span class="detail-label">Phone Number</span>
+            <span class="detail-value">+234 800 000 0000</span>
+          </div>
+          <div class="detail-row">
+            <span class="detail-label">Address</span>
+            <span class="detail-value">Lagos, Nigeria</span>
+          </div>
+          <div class="detail-row">
+            <span class="detail-label">Admission Year</span>
+            <span class="detail-value">2022</span>
+          </div>
+        </div>
+      </div>
+    </main>
+
+    <script src="../../js/sidebar.js"></script>
+    <script src="../../js/menu.js"></script>
+  </body>
+</html>

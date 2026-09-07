@@ -1,0 +1,161 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Student Dashboard · ACADEX</title>
+    <link rel="stylesheet" href="../../css/style.css" />
+  </head>
+  <body>
+    <aside class="sidebar">
+      <div class="sidebar-header">
+        <div class="logo"><h2>ACADEX</h2></div>
+        <button class="hamburger" id="hamburger" title="Menu" aria-label="Menu">
+          ☰
+        </button>
+      </div>
+      <nav class="sidebar-nav">
+        <a href="student-dashboard.html" class="nav-link">Dashboard</a>
+        <a href="result.html" class="nav-link">My Results</a>
+        <a href="courses.html" class="nav-link">Courses</a>
+        <a href="student-profile.html" class="nav-link">My Profile</a>
+      </nav>
+      <div class="sidebar-bottom">
+        <a href="student-login.html" class="nav-link logout">Logout</a>
+      </div>
+    </aside>
+
+    <main class="main-content">
+      <!-- Header -->
+      <section class="lecturer-header">
+        <div class="welcome-text">
+          <p class="welcome-message">Welcome, John Adekunle 👋</p>
+          <p class="lecturer-info">
+            Matric No · CSC/2021/001 · Computer Science
+          </p>
+        </div>
+        <div class="session-selector">
+          <select id="sessionSelect" title="Select session">
+            <option>2024/2025 · Harmattan</option>
+            <option>2024/2025 · Rain</option>
+          </select>
+        </div>
+      </section>
+
+      <!-- Summary Cards -->
+      <section class="summary-cards">
+        <div class="summary-card">
+          <p>Current Level</p>
+          <h3>400</h3>
+        </div>
+        <div class="summary-card">
+          <p>Current GPA</p>
+          <h3 class="green">4.12</h3>
+        </div>
+        <div class="summary-card">
+          <p>Completed Courses</p>
+          <h3>18</h3>
+        </div>
+        <div class="summary-card submitted-card">
+          <p>Academic Status</p>
+          <h3 style="font-size: 18px">Good Standing</h3>
+        </div>
+      </section>
+
+      <!-- Result update alert -->
+      <div class="attention">
+        <p>
+          <strong>Result Update</strong> — Your 2024/2025 Harmattan results are
+          available.
+          <a href="result.html" style="color: #a66a00; font-weight: 700"
+            >View Result →</a
+          >
+        </p>
+      </div>
+
+      <!-- Recent Results -->
+      <section class="courses-section">
+        <div class="section-title">
+          <h2>Recent Results</h2>
+          <a href="result.html" class="btn-sm" style="margin-left: auto"
+            >View All</a
+          >
+        </div>
+
+        <div class="table-wrap">
+          <table class="scores">
+            <thead>
+              <tr>
+                <th>Code</th>
+                <th>Title</th>
+                <th class="r">Unit</th>
+                <th class="r">Score</th>
+                <th>Grade</th>
+                <th>Status</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td class="name">CSC 401</td>
+                <td>Software Engineering</td>
+                <td class="r">3</td>
+                <td class="r">78</td>
+                <td><span class="grade-tag grade-high">A</span></td>
+                <td>
+                  <span class="status-badge status-approved">Passed</span>
+                </td>
+              </tr>
+              <tr>
+                <td class="name">CSC 415</td>
+                <td>Database Systems</td>
+                <td class="r">3</td>
+                <td class="r">71</td>
+                <td><span class="grade-tag grade-high">A</span></td>
+                <td>
+                  <span class="status-badge status-approved">Passed</span>
+                </td>
+              </tr>
+              <tr>
+                <td class="name">CSC 402</td>
+                <td>Computer Architecture</td>
+                <td class="r">3</td>
+                <td class="r">64</td>
+                <td><span class="grade-tag grade-high">B</span></td>
+                <td>
+                  <span class="status-badge status-approved">Passed</span>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <!-- Academic Overview -->
+      <section class="courses-section" style="margin-top: 28px">
+        <div class="section-title">
+          <h2>Academic Overview</h2>
+        </div>
+        <div
+          class="summary-cards"
+          style="grid-template-columns: repeat(3, 1fr)"
+        >
+          <div class="summary-card">
+            <p>CGPA</p>
+            <h3 class="green">4.12 / 5.00</h3>
+          </div>
+          <div class="summary-card">
+            <p>Total Units Earned</p>
+            <h3>96</h3>
+          </div>
+          <div class="summary-card">
+            <p>Expected Graduation</p>
+            <h3>2026</h3>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <script src="../../js/sidebar.js"></script>
+    <script src="../../js/menu.js"></script>
+  </body>
+</html>
