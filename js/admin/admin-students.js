@@ -65,9 +65,10 @@ function addStudent() {
   const matric = $("#matric").value.trim();
   const email = $("#email").value.trim();
   const level = $("#level").value;
+   const department = $("#department").value.trim(); 
   const err = $("#formError");
 
-  if (!name || !matric || !email || !level) {
+  if (!name || !matric || !email || !level || !department) {
     err.textContent = "Fill in all fields.";
     return;
   }

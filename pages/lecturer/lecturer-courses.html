@@ -1,0 +1,42 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Courses · ACADEX</title>
+    <link rel="stylesheet" href="../../css/style.css" />
+  </head>
+  <body>
+    <aside class="sidebar">
+      <div class="sidebar-header">
+        <div class="logo"><h2>ACADEX</h2></div>
+        <button class="hamburger" id="hamburger" title="Menu" aria-label="Menu">☰</button>
+      </div>
+      <nav class="sidebar-nav">
+        <a href="lecturer-dashboard.html" class="nav-link">Dashboard</a>
+        <a href="lecturer-courses.html" class="nav-link">Courses</a>
+        <a href="lecturer-profile.html" class="nav-link">Profile</a>
+      </nav>
+      <div class="sidebar-bottom">
+        <a href="lecturer-login.html" class="nav-link logout">Logout</a>
+      </div>
+    </aside>
+
+    <main class="main-content">
+      <section class="page-head">
+        <h1>My Courses</h1>
+        <p>All courses assigned to you</p>
+      </section>
+
+      <section class="courses-section" id="coursesSection">
+        <!-- course cards injected by JS -->
+      </section>
+    </main>
+
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="../../js/supabase-config.js"></script>
+    <script src="../../js/lecturer/lecturer-courses.js"></script>
+    <script src="../../js/sidebar.js"></script>
+    <script src="../../js/menu.js"></script>
+  </body>
+</html>
