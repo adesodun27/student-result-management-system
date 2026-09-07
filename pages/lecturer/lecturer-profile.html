@@ -8,7 +8,10 @@
   </head>
   <body>
     <aside class="sidebar">
-      <div class="logo"><h2>ACADEX</h2></div>
+      <div class="sidebar-header">
+  <div class="logo"><h2>ACADEX</h2></div>
+  <button class="hamburger" id="hamburger" title="Menu" aria-label="Menu">☰</button>
+</div>
       <nav class="sidebar-nav">
         <a href="lecturer-dashboard.html" class="nav-link">Dashboard</a>
         <a href="lecturer-profile.html" class="nav-link">Profile</a>
@@ -43,6 +46,10 @@
             <span class="detail-value" id="staffId">LEC/2019/0142</span>
           </div>
           <div class="detail-row">
+  <span class="detail-label">Email</span>
+  <span class="detail-value" id="email">—</span>
+</div>
+          <div class="detail-row">
             <span class="detail-label">Department</span>
             <span class="detail-value" id="department">Computer Science</span>
           </div>
@@ -54,7 +61,10 @@
       </div>
     </main>
 
+      <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="../../js/supabase-config.js"></script>
+    <script src="../../js/lecturer/lecturer-profile.js"></script>
     <script src="../../js/sidebar.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="../../js/menu.js"></script>
   </body>
 </html>
