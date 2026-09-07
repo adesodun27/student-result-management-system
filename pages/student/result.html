@@ -1,18 +1,157 @@
-<!DOCTYPE html>
-<html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0"><title>Adacax | My Results</title><link rel="stylesheet" href="/css/student style.css"></head>
-<body><div class="portal"><aside class="sidebar"><div class="logo">ACADEX</div><nav class="nav"><a href="student-dashboard.html">Dashboard</a><a class="active" href="result.html">My Results</a><a href="student-profile.html">My Profile</a><a href="courses.html">Courses</a></nav><a class="logout" href="student-login.html">Logout</a></aside>
-<main class="main"><div class="topbar"><div class="welcome"><h1>My Results</h1><p>View your academic performance by session and semester.</p></div><div class="session">2024/2025 · First Semester ▾</div></div>
-<div class="grid"><div class="card"><div class="stat-title">Semester GPA</div><div class="stat green">4.35</div></div><div class="card"><div class="stat-title">Units Registered</div><div class="stat">18</div></div><div class="card"><div class="stat-title">Units Earned</div><div class="stat">18</div></div><div class="card"><div class="stat-title">Semester Status</div><div class="stat green">Passed</div></div></div>
-<section class="section"><div class="section-title"><h2>2024/2025 · First Semester</h2><button class="btn" onclick="window.print()">Print Result</button></div>
-<table class="result-table"><thead><tr><th>Code</th><th>Course</th><th>Units</th><th>Score</th><th>Grade</th><th>Grade Point</th><th>Status</th></tr></thead><tbody>
-<tr><td>CSC 401</td><td>Software Engineering</td><td>3</td><td>78</td><td>A</td><td>5.00</td><td><span class="badge pass">Passed</span></td></tr>
-<tr><td>CSC 415</td><td>Database Systems</td><td>3</td><td>71</td><td>A</td><td>5.00</td><td><span class="badge pass">Passed</span></td></tr>
-<tr><td>CSC 402</td><td>Computer Architecture</td><td>3</td><td>64</td><td>B</td><td>4.00</td><td><span class="badge pass">Passed</span></td></tr>
-<tr><td>CSC 410</td><td>Computer Networks</td><td>3</td><td>69</td><td>B</td><td>4.00</td><td><span class="badge pass">Passed</span></td></tr>
-<tr><td>GST 402</td><td>Entrepreneurship</td><td>3</td><td>74</td><td>A</td><td>5.00</td><td><span class="badge pass">Passed</span></td></tr>
-<tr><td>CSC 418</td><td>Web Application Development</td><td>3</td><td>67</td><td>B</td><td>4.00</td><td><span class="badge pass">Passed</span></td></tr>
-</tbody></table></section>
-<section class="section"><div class="section-title"><h2>Previous Sessions</h2></div><div class="course-card card"><div><div class="course-title">2023/2024 · Second Semester</div><div class="muted">GPA: 4.02 · Units Earned: 18</div></div><span class="badge info">View Result</span></div>
-<div class="course-card card"><div><div class="course-title">2023/2024 · First Semester</div><div class="muted">GPA: 4.18 · Units Earned: 21</div></div><span class="badge info">View Result</span></div></section>
-<div class="footer-note">Results displayed are subject to official approval by the institution.</div>
-</main></div></body></html>
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>My Results · ACADEX</title>
+    <link rel="stylesheet" href="../../css/style.css" />
+  </head>
+  <body>
+    <aside class="sidebar">
+      <div class="sidebar-header">
+        <div class="logo"><h2>ACADEX</h2></div>
+        <button class="hamburger" id="hamburger" title="Menu" aria-label="Menu">☰</button>
+      </div>
+      <nav class="sidebar-nav">
+        <a href="student-dashboard.html" class="nav-link">Dashboard</a>
+        <a href="result.html" class="nav-link">My Results</a>
+        <a href="courses.html" class="nav-link">Courses</a>
+        <a href="student-profile.html" class="nav-link">My Profile</a>
+      </nav>
+      <div class="sidebar-bottom">
+        <a href="student-login.html" class="nav-link logout">Logout</a>
+      </div>
+    </aside>
+
+    <main class="main-content">
+      <section class="lecturer-header">
+        <div class="welcome-text">
+          <p class="welcome-message">My Results</p>
+          <p class="lecturer-info">View your academic performance by session and semester</p>
+        </div>
+        <div class="session-selector">
+          <select id="sessionSelect" title="Select session">
+            <option>2024/2025 · Harmattan</option>
+            <option>2024/2025 · Rain</option>
+          </select>
+        </div>
+      </section>
+
+      <!-- Summary Cards -->
+      <section class="summary-cards">
+        <div class="summary-card">
+          <p>Semester GPA</p>
+          <h3 class="green">4.35</h3>
+        </div>
+        <div class="summary-card">
+          <p>Units Registered</p>
+          <h3>18</h3>
+        </div>
+        <div class="summary-card">
+          <p>Units Earned</p>
+          <h3>18</h3>
+        </div>
+        <div class="summary-card submitted-card">
+          <p>Semester Status</p>
+          <h3 class="green">Passed</h3>
+        </div>
+      </section>
+
+      <!-- Results Table -->
+      <section class="courses-section">
+        <div class="section-title">
+          <h2>2024/2025 · Harmattan Semester</h2>
+          <button class="course-button" style="margin-left:auto" onclick="window.print()">Print Result</button>
+        </div>
+
+        <div class="table-wrap">
+          <table class="scores">
+            <thead>
+              <tr>
+                <th>Code</th>
+                <th>Course</th>
+                <th class="r">Units</th>
+                <th class="r">Score</th>
+                <th>Grade</th>
+                <th class="r">Point</th>
+                <th>Status</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td class="name">CSC 401</td><td>Software Engineering</td>
+                <td class="r">3</td><td class="r">78</td>
+                <td><span class="grade-tag grade-high">A</span></td>
+                <td class="r">5.00</td>
+                <td><span class="status-badge status-approved">Passed</span></td>
+              </tr>
+              <tr>
+                <td class="name">CSC 415</td><td>Database Systems</td>
+                <td class="r">3</td><td class="r">71</td>
+                <td><span class="grade-tag grade-high">A</span></td>
+                <td class="r">5.00</td>
+                <td><span class="status-badge status-approved">Passed</span></td>
+              </tr>
+              <tr>
+                <td class="name">CSC 402</td><td>Computer Architecture</td>
+                <td class="r">3</td><td class="r">64</td>
+                <td><span class="grade-tag grade-high">B</span></td>
+                <td class="r">4.00</td>
+                <td><span class="status-badge status-approved">Passed</span></td>
+              </tr>
+              <tr>
+                <td class="name">CSC 410</td><td>Computer Networks</td>
+                <td class="r">3</td><td class="r">69</td>
+                <td><span class="grade-tag grade-high">B</span></td>
+                <td class="r">4.00</td>
+                <td><span class="status-badge status-approved">Passed</span></td>
+              </tr>
+              <tr>
+                <td class="name">GST 402</td><td>Entrepreneurship</td>
+                <td class="r">3</td><td class="r">74</td>
+                <td><span class="grade-tag grade-high">A</span></td>
+                <td class="r">5.00</td>
+                <td><span class="status-badge status-approved">Passed</span></td>
+              </tr>
+              <tr>
+                <td class="name">CSC 418</td><td>Web Application Development</td>
+                <td class="r">3</td><td class="r">67</td>
+                <td><span class="grade-tag grade-high">B</span></td>
+                <td class="r">4.00</td>
+                <td><span class="status-badge status-approved">Passed</span></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <!-- Previous Sessions -->
+      <section class="courses-section" style="margin-top:28px">
+        <div class="section-title">
+          <h2>Previous Sessions</h2>
+        </div>
+        <div class="course-card">
+          <div class="course-info">
+            <h3>2023/2024 · Rain Semester</h3>
+            <p>GPA: 4.02 · Units Earned: 18</p>
+          </div>
+          <a href="#" class="btn-sm">View Result</a>
+        </div>
+        <div class="course-card">
+          <div class="course-info">
+            <h3>2023/2024 · Harmattan Semester</h3>
+            <p>GPA: 4.18 · Units Earned: 21</p>
+          </div>
+          <a href="#" class="btn-sm">View Result</a>
+        </div>
+      </section>
+
+      <p class="profile-note" style="text-align:center">
+        Results displayed are subject to official approval by the institution.
+      </p>
+    </main>
+
+    <script src="../../js/sidebar.js"></script>
+    <script src="../../js/menu.js"></script>
+  </body>
+</html>
