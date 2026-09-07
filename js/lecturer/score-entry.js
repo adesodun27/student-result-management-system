@@ -276,8 +276,12 @@ async function saveDraft() {
 }
 
 async function submitResults() {
+  const submitBtn = $("#submitBtn");
+  submitBtn.disabled = true; // prevent double-click
+
   const st = rosterState();
   if (st.invalid > 0 || st.blank > 0) {
+    submitBtn.disabled = false; // re-enable if we bail out here
     toast("Fix errors / fill all scores first", true);
     return;
   }

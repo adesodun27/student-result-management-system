@@ -58,6 +58,12 @@ async function addCourse() {
     err.textContent = "Fill in all fields.";
     return;
   }
+
+    if (Number(unit) < 1 || Number(unit) > 10) {
+    err.textContent = "Units must be between 1 and 10.";
+    return;
+  }
+  
   err.textContent = "";
 
   const { error } = await db.from("courses").insert({
