@@ -33,8 +33,8 @@
 
         <div class="session-selector">
           <select id="sessionSelect" title="Select session">
-            <option value="2024/2025-first">2024/2025 · Harmattan</option>
-            <option value="2024/2025-second">2024/2025 · Rain</option>
+          <option value="2024/2025|Harmattan">2024/2025 · Harmattan</option>
+<option value="2024/2025|Rain">2024/2025 · Rain</option>
           </select>
         </div>
       </section>
@@ -59,13 +59,7 @@
         </div>
       </section>
 
-      <!-- Needs Attention -->
-      <div class="attention">
-        <p>
-          <strong>3 courses need your attention</strong> — 2 not started, 1
-          draft not yet submitted.
-        </p>
-      </div>
+  
 
       <!-- My Courses -->
       <section class="courses-section">
@@ -73,96 +67,13 @@
           <h2>My Courses</h2>
           <span>2024/2025 · Harmattan Semester</span>
         </div>
-
-        <!-- Course 1 -->
-        <div class="course-card">
-          <div class="course-info">
-            <h3>CSC 401 · Software Engineering</h3>
-            <p>400 Level · 3 Units · Harmattan Semester · 40 Students</p>
-          </div>
-          <div class="course-progress">
-            <div class="progress-bar">
-              <div class="progress-fill progress-warning"></div>
-            </div>
-            <p>24 / 40 scored</p>
-          </div>
-          <span class="status-badge status-draft">Draft</span>
-          <button
-            class="course-button"
-            onclick="location.href = 'score-entry.html?course=CSC401'"
-          >
-            Continue
-          </button>
-        </div>
-
-        <!-- Course 2 -->
-        <div class="course-card">
-          <div class="course-info">
-            <h3>CSC 415 · Database Systems</h3>
-            <p>400 Level · 3 Units · Harmattan Semester · 38 Students</p>
-          </div>
-          <div class="course-progress">
-            <div class="progress-bar">
-              <div class="progress-fill progress-danger"></div>
-            </div>
-            <p>0 / 38 scored</p>
-          </div>
-          <span class="status-badge status-not-started">Not Started</span>
-          <button
-            class="course-button"
-            onclick="location.href = 'score-entry.html?course=CSC415'"
-          >
-            Enter Scores
-          </button>
-        </div>
-
-        <!-- Course 3 -->
-        <div class="course-card">
-          <div class="course-info">
-            <h3>CSC 302 · Operating Systems</h3>
-            <p>300 Level · 3 Units · Harmattan Semester · 52 Students</p>
-          </div>
-          <div class="course-progress">
-            <div class="progress-bar">
-              <div class="progress-fill progress-success"></div>
-            </div>
-            <p>52 / 52 scored</p>
-          </div>
-          <span class="status-badge status-submitted">Submitted</span>
-          <button
-            class="course-button"
-            onclick="location.href = 'score-entry.html?course=CSC302'"
-          >
-            View
-          </button>
-        </div>
-
-        <!-- Course 4 -->
-        <div class="course-card">
-          <div class="course-info">
-            <h3>CSC 410 · Computer Networks</h3>
-            <p>400 Level · 3 Units · Harmattan Semester · 35 Students</p>
-          </div>
-          <div class="course-progress">
-            <div class="progress-bar">
-              <div class="progress-fill progress-danger"></div>
-            </div>
-            <p>0 / 35 scored</p>
-          </div>
-          <span class="status-badge status-not-started">Not Started</span>
-          <button
-            class="course-button"
-            onclick="location.href = 'score-entry.html?course=CSC410'"
-          >
-            Enter Scores
-          </button>
-        </div>
       </section>
     </main>
 
-    <script src="../../js/sidebar.js"></script>
-    <script src="../../js/menu.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-     <script src="../../js/supabase-config.js"></script>
+<script src="../../js/supabase-config.js"></script>
+<script src="../../js/lecturer-dashboard.js"></script>
+<script src="../../js/sidebar.js"></script>
+<script src="../../js/menu.js"></script>
   </body>
 </html>
