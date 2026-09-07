@@ -1,11 +1,11 @@
-/* SCORE ENTRY — wired to Supabase.
-   Loads roster (students registered for this course) + any existing results.
-   Save Draft / Submit write to the results table.
-   URL params: ?course=ID&session=2024/2025&semester=Harmattan */
+/* SCORE ENTRY — wired to Supabase (new registration_id model).
+   Results attach to student_registrations.id (registration_id).
+   Grade is auto-computed by the DB. Submit uses submit_result() RPC.
+   URL: ?course=ID&session=2024/2025&semester=Harmattan */
 
 const $ = (s) => document.querySelector(s);
 
-/* grade engine — mirrors GPA function's 5.0 scale */
+/* grade preview only — DB is the source of truth */
 function computeGrade(total) {
   if (total >= 70) return { grade: "A", point: 5 };
   if (total >= 60) return { grade: "B", point: 4 };
@@ -22,77 +22,72 @@ function gradeClass(g) {
 const CA_MAX = 30,
   EXAM_MAX = 70;
 
-/* read URL params */
 const params = new URLSearchParams(location.search);
 const COURSE_ID = params.get("course");
 const SESSION = params.get("session");
 const SEMESTER = params.get("semester");
 
-let course = null; // course details
-let roster = []; // [{ student_id, matric, name, ca, exam }]
+let course = null;
+let roster = []; // [{ registration_id, result_id, name, matric, ca, exam, status }]
 let courseStatus = "not-started";
 
 async function load() {
   if (!COURSE_ID || !SESSION || !SEMESTER) {
     $("#courseTitle").textContent = "Missing course info";
     $("#courseMeta").textContent = "Open this page from the dashboard.";
+    $("#lockedNote").classList.add("hidden");
     return;
   }
 
-  // 1. course details
-  const { data: c, error: cErr } = await db
+  // course details
+  const { data: c } = await db
     .from("courses")
     .select("*")
     .eq("id", COURSE_ID)
     .single();
-
-  if (cErr || !c) {
+  if (!c) {
     $("#courseTitle").textContent = "Course not found";
-    console.error(cErr);
     return;
   }
   course = c;
 
-  // 2. students registered for this course/session/semester (+ their profile)
-  const { data: regs, error: rErr } = await db
+  // registrations for this course/session/semester + student profile
+  const { data: regs } = await db
     .from("student_registrations")
-    .select(`student_id, profiles ( full_name, matric_number )`)
+    .select(`id, student_id, profiles ( full_name, matric_number )`)
     .eq("course_id", COURSE_ID)
     .eq("session", SESSION)
     .eq("semester", SEMESTER);
 
-  if (rErr) {
-    console.error(rErr);
+  // existing results for those registrations
+  const regIds = (regs || []).map((r) => r.id);
+  let existing = [];
+  if (regIds.length) {
+    const { data: res } = await db
+      .from("results")
+      .select("id, registration_id, ca_score, exam_score, status")
+      .in("registration_id", regIds);
+    existing = res || [];
   }
 
-  // 3. existing results for this course/session/semester
-  const { data: existing } = await db
-    .from("results")
-    .select("student_id, ca_score, exam_score, status")
-    .eq("course_id", COURSE_ID)
-    .eq("session", SESSION)
-    .eq("semester", SEMESTER);
-
-  // build roster, merging in any existing scores
   roster = (regs || []).map((reg) => {
-    const found = (existing || []).find((e) => e.student_id === reg.student_id);
+    const found = existing.find((e) => e.registration_id === reg.id);
     return {
-      student_id: reg.student_id,
+      registration_id: reg.id,
+      result_id: found ? found.id : null,
       name: reg.profiles?.full_name || "—",
       matric: reg.profiles?.matric_number || "—",
       ca: found ? found.ca_score : null,
       exam: found ? found.exam_score : null,
+      status: found ? found.status : null,
     };
   });
 
-  // overall status from existing results
-  if (existing && existing.length) {
-    if (existing.some((e) => e.status === "approved"))
-      courseStatus = "approved";
-    else if (existing.some((e) => e.status === "submitted"))
-      courseStatus = "submitted";
-    else courseStatus = "draft";
-  }
+  if (existing.some((e) => e.status === "approved")) courseStatus = "approved";
+  else if (existing.some((e) => e.status === "submitted"))
+    courseStatus = "submitted";
+  else if (existing.length) courseStatus = "draft";
+  else courseStatus = "not-started";
 
   render();
 }
@@ -132,7 +127,7 @@ function render() {
   badge.className = "status-badge " + cls;
   badge.textContent = label;
 
- $("#lockedNote").classList.toggle("hidden", !locked);
+  $("#lockedNote").classList.toggle("hidden", !locked);
 
   if (roster.length === 0) {
     $("#roster").innerHTML =
@@ -249,66 +244,83 @@ function updateFooter() {
   }
 }
 
-/* build rows to write to the results table */
-function buildRows(status) {
+/* rows to upsert — registration_id + scores only. No grade (DB computes). */
+function buildRows() {
   return roster
     .filter(
       (r) => r.ca !== null && r.ca !== "" && r.exam !== null && r.exam !== "",
     )
-    .map((r) => {
-      const total = Number(r.ca) + Number(r.exam);
-      const g = computeGrade(total);
-      return {
-        student_id: r.student_id,
-        course_id: Number(COURSE_ID),
-        ca_score: Number(r.ca),
-        exam_score: Number(r.exam),
-        grade: g.grade, // total_score is auto-computed by the DB
-        session: SESSION,
-        semester: SEMESTER,
-        status: status,
-      };
-    });
+    .map((r) => ({
+      registration_id: r.registration_id,
+      ca_score: Number(r.ca),
+      exam_score: Number(r.exam),
+    }));
 }
 
 async function saveDraft() {
-  const rows = buildRows("draft");
+  const rows = buildRows();
   if (rows.length === 0) {
     toast("Nothing to save yet", true);
     return;
   }
 
-  // upsert: insert or update on the unique (student, course, session, semester) key
-  const { error } = await db.from("results").upsert(rows, {
-    onConflict: "student_id,course_id,session,semester",
-  });
+  const { error } = await db
+    .from("results")
+    .upsert(rows, { onConflict: "registration_id" });
   if (error) {
     toast("Couldn't save: " + error.message, true);
     return;
   }
-  courseStatus = "draft";
-  render();
   toast("Draft saved");
+  await load(); // reload to pick up new result_ids
 }
 
 async function submitResults() {
+  const submitBtn = $("#submitBtn");
+  submitBtn.disabled = true; // prevent double-click
+
   const st = rosterState();
   if (st.invalid > 0 || st.blank > 0) {
+    submitBtn.disabled = false; // re-enable if we bail out here
     toast("Fix errors / fill all scores first", true);
     return;
   }
 
-  const rows = buildRows("submitted");
-  const { error } = await db.from("results").upsert(rows, {
-    onConflict: "student_id,course_id,session,semester",
-  });
-  if (error) {
-    toast("Couldn't submit: " + error.message, true);
+  // 1. make sure all rows are saved first (so every result has an id)
+  const rows = buildRows();
+  const { error: saveErr } = await db
+    .from("results")
+    .upsert(rows, { onConflict: "registration_id" });
+  if (saveErr) {
+    toast("Couldn't save before submit: " + saveErr.message, true);
     return;
   }
-  courseStatus = "submitted";
-  render();
-  toast("Results submitted");
+
+  // 2. reload to get the result ids
+  await load();
+
+  // 3. call submit_result() for each result row
+  let failed = 0;
+  for (const r of roster) {
+    if (!r.result_id) {
+      failed++;
+      continue;
+    }
+    const { error } = await db.rpc("submit_result", {
+      p_result_id: r.result_id,
+    });
+    if (error) {
+      console.error(error);
+      failed++;
+    }
+  }
+
+  if (failed > 0) {
+    toast(`Submitted with ${failed} error(s) — check console`, true);
+  } else {
+    toast("Results submitted");
+  }
+  await load();
 }
 
 let toastTimer;

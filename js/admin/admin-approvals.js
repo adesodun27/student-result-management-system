@@ -1,20 +1,23 @@
-/* ADMIN APPROVALS — wired to Supabase.
-   Lists courses with SUBMITTED results, lets admin review + approve.
-   Approve = update results set status='approved' for that course/session/semester. */
+/* ADMIN APPROVALS — wired to Supabase (new schema).
+   Results attach to registration_id. Approve uses approve_result() RPC per row.
+   Lists submitted results grouped by course. */
 
 const $ = (s) => document.querySelector(s);
-let groups = []; // [{ key, course, session, semester, count, rows }]
+let groups = [];
 let current = null;
 
 async function loadSubmitted() {
-  // get all submitted results, joined to student + course info
+  // submitted results → join through registration → student + course
   const { data, error } = await db
     .from("results")
     .select(
       `
-      id, student_id, course_id, ca_score, exam_score, total_score, grade, session, semester, status,
-      courses ( course_code, course_title ),
-      profiles ( full_name, matric_number )
+      id, ca_score, exam_score, total_score, grade, status,
+      student_registrations (
+        course_id, session, semester,
+        profiles ( full_name, matric_number ),
+        courses ( course_code, course_title )
+      )
     `,
     )
     .eq("status", "submitted");
@@ -28,24 +31,27 @@ async function loadSubmitted() {
     return;
   }
 
-  // group the result rows by course + session + semester
+  // group by course + session + semester
   const map = {};
   (data || []).forEach((r) => {
-    const key = `${r.course_id}|${r.session}|${r.semester}`;
+    const reg = r.student_registrations;
+    if (!reg) return;
+    const key = `${reg.course_id}|${reg.session}|${reg.semester}`;
     if (!map[key]) {
       map[key] = {
         key,
-        course_id: r.course_id,
-        code: r.courses?.course_code || "—",
-        title: r.courses?.course_title || "—",
-        session: r.session,
-        semester: r.semester,
+        course_id: reg.course_id,
+        code: reg.courses?.course_code || "—",
+        title: reg.courses?.course_title || "—",
+        session: reg.session,
+        semester: reg.semester,
         rows: [],
       };
     }
     map[key].rows.push({
-      name: r.profiles?.full_name || "—",
-      matric: r.profiles?.matric_number || "—",
+      result_id: r.id,
+      name: reg.profiles?.full_name || "—",
+      matric: reg.profiles?.matric_number || "—",
       ca: r.ca_score,
       exam: r.exam_score,
       total: r.total_score,
@@ -55,7 +61,7 @@ async function loadSubmitted() {
 
   groups = Object.values(map);
 
-  // look up the lecturer for each group (course + session + semester)
+  // lecturer name per group
   const { data: assignments } = await db
     .from("lecturer_courses")
     .select(`course_id, session, semester, profiles ( full_name )`);
@@ -79,7 +85,6 @@ function gradeClass(g) {
   return "grade-low";
 }
 
-/* ---- list view ---- */
 function renderList() {
   if (groups.length === 0) {
     $("#submittedList").innerHTML =
@@ -93,7 +98,7 @@ function renderList() {
       (g, i) => `
     <tr>
       <td class="name">${g.code} · ${g.title}</td>
-            <td>${g.lecturer || "—"}</td>
+      <td>${g.lecturer || "—"}</td>
       <td class="r">${g.rows.length}</td>
       <td>${g.session} · ${g.semester}</td>
       <td><span class="status-badge status-submitted">Submitted</span></td>
@@ -109,7 +114,6 @@ function renderList() {
     );
 }
 
-/* ---- detail view ---- */
 function openDetail(i) {
   current = groups[i];
 
@@ -151,36 +155,39 @@ function backToList() {
   current = null;
 }
 
-/* ---- approve ---- */
+/* approve — call approve_result() RPC for each result row */
 async function approve() {
   if (!current) return;
 
-  const { error } = await db
-    .from("results")
-    .update({ status: "approved" })
-    .eq("course_id", current.course_id)
-    .eq("session", current.session)
-    .eq("semester", current.semester)
-    .eq("status", "submitted"); // only flip the submitted ones
-
-  if (error) {
-    toast("Couldn't approve: " + error.message, true);
-    return;
+  let failed = 0;
+  for (const r of current.rows) {
+    const { error } = await db.rpc("approve_result", {
+      p_result_id: r.result_id,
+    });
+    if (error) {
+      console.error(error);
+      failed++;
+    }
   }
-  toast(`${current.code} approved — published to students`);
+
+  if (failed > 0) {
+    toast(`Approved with ${failed} error(s) — check console`, true);
+  } else {
+    toast(`${current.code} approved — published to students`);
+  }
   backToList();
-  await loadSubmitted(); // refresh list (approved ones drop off)
+  await loadSubmitted();
 }
 
+/* return to lecturer — reopen_result() only works on APPROVED results,
+   so it can't return a 'submitted' one. Not usable from here. */
 function returnToLecturer() {
-  // schema has no 'returned' state — not available
   toast(
-    "Return isn't available — needs a 'returned' status in the database",
+    "Return isn't available for submitted results — only admin can reopen approved ones",
     true,
   );
 }
 
-/* ---- toast ---- */
 let toastTimer;
 function toast(msg, isErr) {
   const t = $("#toast");
@@ -190,7 +197,6 @@ function toast(msg, isErr) {
   toastTimer = setTimeout(() => (t.className = ""), 2600);
 }
 
-/* ---- go ---- */
 $("#backToList").addEventListener("click", (e) => {
   e.preventDefault();
   backToList();

@@ -136,7 +136,11 @@ function renderCourses(courses) {
     return;
   }
 
-  courses.forEach((c) => {
+  const priority = { "not-started": 0, draft: 1, submitted: 2, approved: 3 };
+  const shortlist = [...courses]
+    .sort((a, b) => priority[a.status] - priority[b.status])
+    .slice(0, 2);
+  shortlist.forEach((c) => {
     const pct = c.total ? Math.round((c.scored / c.total) * 100) : 0;
     const card = document.createElement("div");
     card.className = "course-card";
