@@ -8,25 +8,25 @@
 let STUDENTS = [
   {
     name: "Adebayo Chidinma",
-    matric: "CSC/2021/001",
+    matric: "SEN/2021/001",
     email: "chidinma@acadex.edu",
     level: 400,
   },
   {
     name: "Okonkwo Emeka",
-    matric: "CSC/2021/014",
+    matric: "SEN/2021/014",
     email: "emeka@acadex.edu",
     level: 400,
   },
   {
     name: "Ibrahim Fatima",
-    matric: "CSC/2021/027",
+    matric: "SEN/2021/027",
     email: "fatima@acadex.edu",
     level: 400,
   },
   {
     name: "Ahmed Yusuf",
-    matric: "CSC/2020/003",
+    matric: "SEN/2020/003",
     email: "yusuf@acadex.edu",
     level: 300,
   },
