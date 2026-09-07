@@ -1,5 +1,5 @@
 -- =========================================================================
--- ACADEX PRODUCTION SCHEMA & SECURITY SCRIPT (v7.2 - SESSION FORMAT FIX)
+-- ACADEX PRODUCTION SCHEMA & SECURITY SCRIPT 
 -- =========================================================================
 
 -- Drop functions and types safely first
@@ -84,7 +84,7 @@ CREATE TRIGGER trg_protect_profile_fields
     FOR EACH ROW
     EXECUTE FUNCTION prevent_unauthorized_profile_updates();
 
--- 2. COURSES TABLE
+-- 2. COURSES TABLE (With strict department and uppercase code requirements)
 CREATE TABLE courses (
     id SERIAL PRIMARY KEY,
     course_code TEXT UNIQUE NOT NULL CHECK (course_code = UPPER(BTRIM(course_code)) AND BTRIM(course_code) <> ''),
@@ -95,7 +95,7 @@ CREATE TABLE courses (
     created_at TIMESTAMPTZ NOT NULL DEFAULT now()
 );
 
--- 3. LECTURER COURSES TABLE (With Academic Session Format Enforcement)
+-- 3. LECTURER COURSES TABLE (With Academic Session Format Enforcement YYYY/YYYY)
 CREATE TABLE lecturer_courses (
     id SERIAL PRIMARY KEY,
     lecturer_id UUID NOT NULL REFERENCES profiles(id) ON DELETE RESTRICT,
@@ -106,7 +106,7 @@ CREATE TABLE lecturer_courses (
     CONSTRAINT unique_lecturer_course_session_semester UNIQUE (lecturer_id, course_id, session, semester)
 );
 
--- 4. STUDENT REGISTRATIONS TABLE (With Academic Session Format Enforcement)
+-- 4. STUDENT REGISTRATIONS TABLE (With Academic Session Format Enforcement YYYY/YYYY)
 CREATE TABLE student_registrations (
     id SERIAL PRIMARY KEY,
     student_id UUID NOT NULL REFERENCES profiles(id) ON DELETE RESTRICT,
@@ -370,7 +370,7 @@ CREATE POLICY "Admins view activity logs" ON activity_logs FOR SELECT TO authent
 );
 
 -- =========================================================================
--- WORKFLOW & REPORTING RPC FUNCTIONS
+-- WORKFLOW & REPORTING RPC FUNCTIONS (Fully Schema-Qualified with Safe Search Paths)
 -- =========================================================================
 
 CREATE OR REPLACE FUNCTION submit_result(p_result_id INT)
@@ -385,8 +385,8 @@ BEGIN
     END IF;
 
     SELECT sr.course_id, sr.session, sr.semester INTO v_course_id, v_session, v_semester
-    FROM results r
-    JOIN student_registrations sr ON sr.id = r.registration_id
+    FROM public.results r
+    JOIN public.student_registrations sr ON sr.id = r.registration_id
     WHERE r.id = p_result_id;
 
     IF NOT FOUND THEN
@@ -394,7 +394,7 @@ BEGIN
     END IF;
 
     IF public.get_user_role() <> 'admin' AND NOT EXISTS (
-        SELECT 1 FROM lecturer_courses lc
+        SELECT 1 FROM public.lecturer_courses lc
         WHERE lc.lecturer_id = auth.uid()
           AND lc.course_id = v_course_id
           AND lc.session = v_session
@@ -403,7 +403,7 @@ BEGIN
         RAISE EXCEPTION 'Unauthorized: You are not assigned to this course.';
     END IF;
 
-    UPDATE results
+    UPDATE public.results
     SET status = 'submitted'
     WHERE id = p_result_id AND status = 'draft';
 
@@ -411,7 +411,7 @@ BEGIN
         RAISE EXCEPTION 'Result must be in draft status to be submitted.';
     END IF;
 
-    INSERT INTO activity_logs (user_id, action, entity_type, entity_id, details)
+    INSERT INTO public.activity_logs (user_id, action, entity_type, entity_id, details)
     VALUES (auth.uid(), 'SUBMIT_RESULT', 'results', p_result_id::TEXT, jsonb_build_object('status', 'submitted'));
 END;
 $$ LANGUAGE plpgsql SECURITY DEFINER SET search_path = '';
@@ -423,7 +423,7 @@ BEGIN
         RAISE EXCEPTION 'Unauthorized: Only administrators can approve results.';
     END IF;
 
-    UPDATE results
+    UPDATE public.results
     SET status = 'approved'
     WHERE id = p_result_id AND status = 'submitted';
 
@@ -431,7 +431,7 @@ BEGIN
         RAISE EXCEPTION 'Result must be in submitted status to be approved.';
     END IF;
 
-    INSERT INTO activity_logs (user_id, action, entity_type, entity_id, details)
+    INSERT INTO public.activity_logs (user_id, action, entity_type, entity_id, details)
     VALUES (auth.uid(), 'APPROVE_RESULT', 'results', p_result_id::TEXT, jsonb_build_object('status', 'approved'));
 END;
 $$ LANGUAGE plpgsql SECURITY DEFINER SET search_path = '';
@@ -443,7 +443,7 @@ BEGIN
         RAISE EXCEPTION 'Unauthorized: Only administrators can reopen results.';
     END IF;
 
-    UPDATE results
+    UPDATE public.results
     SET status = 'draft'
     WHERE id = p_result_id AND status = 'approved';
 
@@ -451,7 +451,7 @@ BEGIN
         RAISE EXCEPTION 'Result must be approved to be reopened.';
     END IF;
 
-    INSERT INTO activity_logs (user_id, action, entity_type, entity_id, details)
+    INSERT INTO public.activity_logs (user_id, action, entity_type, entity_id, details)
     VALUES (auth.uid(), 'REOPEN_RESULT', 'results', p_result_id::TEXT, jsonb_build_object('status', 'draft'));
 END;
 $$ LANGUAGE plpgsql SECURITY DEFINER SET search_path = '';
@@ -475,17 +475,17 @@ BEGIN
     END IF;
 
     IF caller_role = 'lecturer' AND NOT EXISTS (
-        SELECT 1 FROM student_registrations sr
-        JOIN lecturer_courses lc ON lc.course_id = sr.course_id AND lc.session = sr.session AND lc.semester = sr.semester
+        SELECT 1 FROM public.student_registrations sr
+        JOIN public.lecturer_courses lc ON lc.course_id = sr.course_id AND lc.session = sr.session AND lc.semester = sr.semester
         WHERE sr.student_id = p_student_id AND lc.lecturer_id = auth.uid()
     ) THEN
         RAISE EXCEPTION 'Unauthorized: Lecturer is not assigned to any courses for this student.';
     END IF;
 
     SELECT COALESCE(SUM(c.credit_units), 0) INTO total_completed_units
-    FROM student_registrations sr
-    JOIN courses c ON sr.course_id = c.id
-    JOIN results r ON r.registration_id = sr.id
+    FROM public.student_registrations sr
+    JOIN public.courses c ON sr.course_id = c.id
+    JOIN public.results r ON r.registration_id = sr.id
     WHERE sr.student_id = p_student_id AND r.status = 'approved' AND r.grade IS NOT NULL;
 
     SELECT COALESCE(
@@ -502,9 +502,9 @@ BEGIN
             )::numeric / NULLIF(SUM(c.credit_units), 0), 2
         ), 0.00
     ) INTO cumulative_cgpa
-    FROM student_registrations sr
-    JOIN courses c ON sr.course_id = c.id
-    JOIN results r ON r.registration_id = sr.id
+    FROM public.student_registrations sr
+    JOIN public.courses c ON sr.course_id = c.id
+    JOIN public.results r ON r.registration_id = sr.id
     WHERE sr.student_id = p_student_id AND r.status = 'approved' AND r.grade IS NOT NULL;
 
     SELECT jsonb_build_object(
@@ -532,15 +532,15 @@ BEGIN
             )
         END
     ) INTO result_json
-    FROM student_registrations sr
-    JOIN courses c ON sr.course_id = c.id
-    LEFT JOIN results r ON r.registration_id = sr.id
+    FROM public.student_registrations sr
+    JOIN public.courses c ON sr.course_id = c.id
+    LEFT JOIN public.results r ON r.registration_id = sr.id
         AND (
             (caller_role = 'student' AND r.status = 'approved')
             OR caller_role = 'admin'
             OR (
                 caller_role = 'lecturer' AND EXISTS (
-                    SELECT 1 FROM lecturer_courses lc 
+                    SELECT 1 FROM public.lecturer_courses lc 
                     WHERE lc.lecturer_id = auth.uid() 
                       AND lc.course_id = c.id 
                       AND lc.session = sr.session 
@@ -552,7 +552,7 @@ BEGIN
       AND (
           caller_role <> 'lecturer' 
           OR EXISTS (
-              SELECT 1 FROM lecturer_courses lc 
+              SELECT 1 FROM public.lecturer_courses lc 
               WHERE lc.lecturer_id = auth.uid() 
                 AND lc.course_id = c.id 
                 AND lc.session = sr.session 
