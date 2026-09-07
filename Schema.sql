@@ -11,6 +11,7 @@ CREATE TABLE IF NOT EXISTS profiles (
     staff_id TEXT UNIQUE,
     email TEXT UNIQUE NOT NULL,
     department TEXT,
+    level INT,
     must_change_password BOOLEAN DEFAULT TRUE NOT NULL,
     created_at TIMESTAMP WITH TIME ZONE DEFAULT TIMEZONE('utc'::text, NOW()) NOT NULL
 );
@@ -96,6 +97,7 @@ ALTER TABLE activity_logs ENABLE ROW LEVEL SECURITY;
 
 -- Drop existing policies first to prevent "already exists" errors on re-run
 DROP POLICY IF EXISTS "Public profiles are viewable by everyone" ON profiles;
+DROP POLICY IF EXISTS "Users can update their own profile safely" ON profiles;
 DROP POLICY IF EXISTS "Users can update their own profile" ON profiles;
 DROP POLICY IF EXISTS "Admins can manage profiles" ON profiles;
 
@@ -103,13 +105,15 @@ DROP POLICY IF EXISTS "Courses viewable by authenticated users" ON courses;
 DROP POLICY IF EXISTS "Admins manage courses" ON courses;
 
 DROP POLICY IF EXISTS "Lecturer courses viewable by authenticated users" ON lecturer_courses;
-DROP POLICY IF EXISTS "Lecturers and admins manage assigned courses" ON lecturer_courses;
+DROP POLICY IF EXISTS "Admins manage lecturer courses" ON lecturer_courses;
 
 DROP POLICY IF EXISTS "Student registrations access" ON student_registrations;
 DROP POLICY IF EXISTS "Students insert own registrations" ON student_registrations;
 
 DROP POLICY IF EXISTS "Results view rules" ON results;
 DROP POLICY IF EXISTS "Lecturers and admins modify results" ON results;
+DROP POLICY IF EXISTS "Lecturers modify assigned course results" ON results;
+DROP POLICY IF EXISTS "Admins manage results" ON results;
 
 DROP POLICY IF EXISTS "Users manage support tickets" ON support_tickets;
 
@@ -117,9 +121,20 @@ DROP POLICY IF EXISTS "Admins view activity logs" ON activity_logs;
 DROP POLICY IF EXISTS "System inserts activity logs" ON activity_logs;
 
 -- Re-create Policies
--- Profiles Policies
+
+-- Profiles Policies (Secured against privilege escalation)
 CREATE POLICY "Public profiles are viewable by everyone" ON profiles FOR SELECT USING (true);
-CREATE POLICY "Users can update their own profile" ON profiles FOR UPDATE USING (auth.uid() = id);
+
+CREATE POLICY "Users can update their own profile safely" ON profiles 
+FOR UPDATE 
+USING (auth.uid() = id)
+WITH CHECK (
+    auth.uid() = id 
+    AND role = (SELECT role FROM profiles WHERE id = auth.uid()) -- Prevent changing own role
+    AND (matric_number IS NOT DISTINCT FROM (SELECT matric_number FROM profiles WHERE id = auth.uid()))
+    AND (staff_id IS NOT DISTINCT FROM (SELECT staff_id FROM profiles WHERE id = auth.uid()))
+);
+
 CREATE POLICY "Admins can manage profiles" ON profiles FOR ALL TO authenticated USING (
     EXISTS (SELECT 1 FROM profiles WHERE id = auth.uid() AND role = 'admin')
 );
@@ -130,10 +145,10 @@ CREATE POLICY "Admins manage courses" ON courses FOR ALL TO authenticated USING 
     EXISTS (SELECT 1 FROM profiles WHERE id = auth.uid() AND role = 'admin')
 );
 
--- Lecturer Courses Policies
+-- Lecturer Courses Policies (Only admins can assign lecturers)
 CREATE POLICY "Lecturer courses viewable by authenticated users" ON lecturer_courses FOR SELECT TO authenticated USING (true);
-CREATE POLICY "Lecturers and admins manage assigned courses" ON lecturer_courses FOR ALL TO authenticated USING (
-    lecturer_id = auth.uid() OR EXISTS (SELECT 1 FROM profiles WHERE id = auth.uid() AND role = 'admin')
+CREATE POLICY "Admins manage lecturer courses" ON lecturer_courses FOR ALL TO authenticated USING (
+    EXISTS (SELECT 1 FROM profiles WHERE id = auth.uid() AND role = 'admin')
 );
 
 -- Student Registrations Policies
@@ -142,13 +157,24 @@ CREATE POLICY "Student registrations access" ON student_registrations FOR SELECT
 );
 CREATE POLICY "Students insert own registrations" ON student_registrations FOR INSERT TO authenticated WITH CHECK (student_id = auth.uid());
 
--- Results Policies
+-- Results Policies (Lecturers can only modify results for their assigned courses)
 CREATE POLICY "Results view rules" ON results FOR SELECT TO authenticated USING (
     (student_id = auth.uid() AND status = 'approved') 
     OR EXISTS (SELECT 1 FROM profiles WHERE id = auth.uid() AND role IN ('lecturer', 'admin'))
 );
-CREATE POLICY "Lecturers and admins modify results" ON results FOR ALL TO authenticated USING (
-    EXISTS (SELECT 1 FROM profiles WHERE id = auth.uid() AND role IN ('lecturer', 'admin'))
+
+CREATE POLICY "Lecturers modify assigned course results" ON results FOR ALL TO authenticated USING (
+    EXISTS (
+        SELECT 1 FROM profiles p 
+        WHERE p.id = auth.uid() AND p.role = 'admin'
+    )
+    OR EXISTS (
+        SELECT 1 FROM lecturer_courses lc
+        WHERE lc.lecturer_id = auth.uid() 
+          AND lc.course_id = results.course_id 
+          AND lc.session = results.session 
+          AND lc.semester = results.semester
+    )
 );
 
 -- Support Tickets Policies
