@@ -12,9 +12,24 @@ async function loadDashboard() {
   if (!user) {
     // not logged in — will happen until auth is wired
     console.warn("No logged-in user yet");
-      renderCourses([]);
-      renderSummary([]);
+    renderCourses([]);
+    renderSummary([]);
     return;
+  }
+
+  // load this lecturer's profile for the header
+  const { data: profile } = await db
+    .from("profiles")
+    .select("full_name, staff_id, department")
+    .eq("id", user.id)
+    .single();
+
+  if (profile) {
+    const welcome = document.querySelector(".welcome-message");
+    const info = document.querySelector(".lecturer-info");
+    if (welcome) welcome.textContent = `Welcome, ${profile.full_name} 👋`;
+    if (info)
+      info.textContent = `Staff ID · ${profile.staff_id || "—"} · ${profile.department || "—"}`;
   }
 
   // get this lecturer's assigned courses (join to course details)
