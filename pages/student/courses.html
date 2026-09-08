@@ -23,11 +23,11 @@
       </div>
     </aside>
 
-    <main class="main-content">
+        <main class="main-content">
       <section class="lecturer-header">
         <div class="welcome-text">
           <p class="welcome-message">My Courses</p>
-          <p class="lecturer-info">Registered courses for the current academic session</p>
+          <p class="lecturer-info">Courses you're registered for</p>
         </div>
         <div class="session-selector">
           <select id="sessionSelect" title="Select session">
@@ -38,84 +38,17 @@
       </section>
 
       <div class="attention">
-        <p><strong>18 units registered</strong> — Your course registration is complete for this semester.</p>
+        <p><strong id="unitCount">—</strong> <span id="unitLabel">registered</span></p>
       </div>
 
-      <section class="courses-section">
-        <div class="course-card">
-          <div class="course-info">
-            <h3>CSC 401 · Software Engineering</h3>
-            <p>400 Level · 3 Units · Harmattan Semester</p>
-          </div>
-          <div class="course-progress">
-            <div class="progress-bar"><div class="progress-fill progress-success"></div></div>
-            <p>Result available</p>
-          </div>
-          <span class="status-badge status-approved">Completed</span>
-        </div>
-
-        <div class="course-card">
-          <div class="course-info">
-            <h3>CSC 415 · Database Systems</h3>
-            <p>400 Level · 3 Units · Harmattan Semester</p>
-          </div>
-          <div class="course-progress">
-            <div class="progress-bar"><div class="progress-fill progress-success"></div></div>
-            <p>Result available</p>
-          </div>
-          <span class="status-badge status-approved">Completed</span>
-        </div>
-
-        <div class="course-card">
-          <div class="course-info">
-            <h3>CSC 402 · Computer Architecture</h3>
-            <p>400 Level · 3 Units · Harmattan Semester</p>
-          </div>
-          <div class="course-progress">
-            <div class="progress-bar"><div class="progress-fill progress-success"></div></div>
-            <p>Result available</p>
-          </div>
-          <span class="status-badge status-approved">Completed</span>
-        </div>
-
-        <div class="course-card">
-          <div class="course-info">
-            <h3>CSC 410 · Computer Networks</h3>
-            <p>400 Level · 3 Units · Harmattan Semester</p>
-          </div>
-          <div class="course-progress">
-            <div class="progress-bar"><div class="progress-fill progress-success"></div></div>
-            <p>Result available</p>
-          </div>
-          <span class="status-badge status-approved">Completed</span>
-        </div>
-
-        <div class="course-card">
-          <div class="course-info">
-            <h3>GST 402 · Entrepreneurship</h3>
-            <p>400 Level · 3 Units · Harmattan Semester</p>
-          </div>
-          <div class="course-progress">
-            <div class="progress-bar"><div class="progress-fill progress-success"></div></div>
-            <p>Result available</p>
-          </div>
-          <span class="status-badge status-approved">Completed</span>
-        </div>
-
-        <div class="course-card">
-          <div class="course-info">
-            <h3>CSC 418 · Web Application Development</h3>
-            <p>400 Level · 3 Units · Harmattan Semester</p>
-          </div>
-          <div class="course-progress">
-            <div class="progress-bar"><div class="progress-fill progress-success"></div></div>
-            <p>Result available</p>
-          </div>
-          <span class="status-badge status-approved">Completed</span>
-        </div>
+      <section class="courses-section" id="coursesSection">
+        <!-- injected by JS -->
       </section>
     </main>
 
+       <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="../../js/supabase-config.js"></script>
+    <script src="../../js/student/student-courses.js"></script>
     <script src="../../js/sidebar.js"></script>
     <script src="../../js/menu.js"></script>
     <script src="../../js/logout.js"></script>

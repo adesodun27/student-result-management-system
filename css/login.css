@@ -319,10 +319,32 @@ body {
     margin: 0 auto 16px auto;
 }
 
+/* ===== TABLET & SMALL LAPTOP ===== */
+@media (max-width: 900px) {
+    .portal-card {
+        max-width: 90%;
+        min-height: auto;
+    }
+    .banner-section {
+        padding: 40px 35px;
+    }
+    .form-section {
+        padding: 40px 35px;
+    }
+}
+
+/* ===== MOBILE — stack banner on top of form ===== */
 @media (max-width: 768px) {
+    body {
+        padding: 16px;
+        align-items: flex-start;
+        padding-top: 30px;
+    }
+
     .portal-card {
         flex-direction: column;
-        max-width: 450px;
+        max-width: 440px;
+        min-height: auto;
     }
 
     .spiral-edge-divider {
@@ -330,10 +352,59 @@ body {
     }
 
     .banner-section {
-        padding: 40px 30px;
+        padding: 34px 28px;
+        flex: none;
+    }
+
+    .spiral-bg-graphic {
+        width: 220px;
+        height: 220px;
+    }
+
+    .brand-name {
+        font-size: 2.2rem;
+        margin-bottom: 12px;
+    }
+
+    .portal-title {
+        font-size: 1.35rem;
+    }
+
+    .portal-description {
+        font-size: 0.85rem;
     }
 
     .form-section {
-        padding: 40px 30px;
+        padding: 34px 28px;
+        flex: none;
     }
+}
+
+/* ===== SMALL PHONES ===== */
+@media (max-width: 420px) {
+    body {
+        padding: 10px;
+        padding-top: 20px;
+    }
+
+    .banner-section {
+        padding: 28px 22px;
+    }
+
+    .form-section {
+        padding: 28px 22px;
+    }
+
+    .brand-name {
+        font-size: 1.9rem;
+    }
+
+    .form-header h2 {
+        font-size: 1.5rem;
+    }
+
+    /* shrink the floating circles so they don't overflow weirdly */
+    .circle-1 { width: 240px; height: 240px; }
+    .circle-2 { width: 280px; height: 280px; }
+    .circle-3 { width: 160px; height: 160px; }
 }

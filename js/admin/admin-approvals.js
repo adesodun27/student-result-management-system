@@ -181,13 +181,30 @@ async function approve() {
 
 /* return to lecturer — reopen_result() only works on APPROVED results,
    so it can't return a 'submitted' one. Not usable from here. */
-function returnToLecturer() {
-  toast(
-    "Return isn't available for submitted results — only admin can reopen approved ones",
-    true,
-  );
-}
+/* return to lecturer — reopen_result() now works on submitted OR approved
+   results, sending them back to draft for the lecturer to fix. */
+async function returnToLecturer() {
+  if (!current) return;
 
+  let failed = 0;
+  for (const r of current.rows) {
+    const { error } = await db.rpc("reopen_result", {
+      p_result_id: r.result_id,
+    });
+    if (error) {
+      console.error(error);
+      failed++;
+    }
+  }
+
+  if (failed > 0) {
+    toast(`Returned with ${failed} error(s) — check console`, true);
+  } else {
+    toast(`${current.code} returned to lecturer for correction`);
+  }
+  backToList();
+  await loadSubmitted();
+}
 let toastTimer;
 function toast(msg, isErr) {
   const t = $("#toast");
