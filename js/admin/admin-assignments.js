@@ -1,168 +1,242 @@
-/* ADMIN ASSIGNMENTS — mock data, wire to Supabase later.
-   Lecturer→course: insert into lecturer_courses (lecturer_id, course_id, session, semester)
-   Student→course:  insert into student_registrations (student_id, course_id, session, semester)
-   Dropdowns come from: profiles (role='lecturer'/'student') and courses. */
-
-// mock reference data (in real app: fetched from the DB)
-const LECTURERS = [
-  { id: "L1", name: "Dr. Adesodun Oladipo" },
-  { id: "L2", name: "Dr. Okafor Chinwe" },
-  { id: "L3", name: "Prof. Bello Adamu" },
-];
-const STUDENTS = [
-  { id: "S1", name: "Adebayo Chidinma (SEN/2021/001)" },
-  { id: "S2", name: "Okonkwo Emeka (SEN/2021/014)" },
-  { id: "S3", name: "Ibrahim Fatima (SEN/2021/027)" },
-];
-const COURSES = [
-  { id: "C1", label: "CSC 401 · Software Engineering" },
-  { id: "C2", label: "CSC 415 · Database Systems" },
-  { id: "C3", label: "CSC 302 · Operating Systems" },
-];
-
-const SESSION = "2024/2025"; // in real app: from a session selector
-
-let lecAssignments = [
-  {
-    lec: "Dr. Adesodun Oladipo",
-    course: "CSC 401 · Software Engineering",
-    semester: "First",
-  },
-];
-let stuRegistrations = [
-  {
-    stu: "Adebayo Chidinma (SEN/2021/001)",
-    course: "CSC 401 · Software Engineering",
-    semester: "First",
-  },
-];
+/* ADMIN ASSIGNMENTS — wired to Supabase.
+   Lecturer→course: lecturer_courses (lecturer_id, course_id, session, semester)
+   Student→course:  student_registrations (student_id, course_id, session, semester)
+   Dropdowns: profiles (role=lecturer/student) + courses. */
 
 const $ = (s) => document.querySelector(s);
 
-/* ---- fill dropdowns ---- */
-function fillSelect(el, items, valueKey, labelKey) {
-  el.innerHTML = items
-    .map((x) => `<option value="${x[valueKey]}">${x[labelKey]}</option>`)
-    .join("");
+const SESSION = "2024/2025";
+
+let lecturers = [];
+let students = [];
+let courses = [];
+
+async function loadRefData() {
+  const [lecRes, stuRes, crsRes] = await Promise.all([
+    db
+      .from("profiles")
+      .select("id, full_name, staff_id")
+      .eq("role", "lecturer"),
+    db
+      .from("profiles")
+      .select("id, full_name, matric_number")
+      .eq("role", "student"),
+    db
+      .from("courses")
+      .select("id, course_code, course_title")
+      .order("course_code"),
+  ]);
+
+  lecturers = lecRes.data || [];
+  students = stuRes.data || [];
+  courses = crsRes.data || [];
+
+  fillSelect(
+    $("#lecSelect"),
+    lecturers,
+    "id",
+    (x) => `${x.full_name} (${x.staff_id || "—"})`,
+  );
+  fillSelect(
+    $("#lecCourse"),
+    courses,
+    "id",
+    (x) => `${x.course_code} · ${x.course_title}`,
+  );
+  fillSelect(
+    $("#stuSelect"),
+    students,
+    "id",
+    (x) => `${x.full_name} (${x.matric_number || "—"})`,
+  );
+  fillSelect(
+    $("#stuCourse"),
+    courses,
+    "id",
+    (x) => `${x.course_code} · ${x.course_title}`,
+  );
 }
-function initSelects() {
-  fillSelect($("#lecSelect"), LECTURERS, "id", "name");
-  fillSelect($("#lecCourse"), COURSES, "id", "label");
-  fillSelect($("#stuSelect"), STUDENTS, "id", "name");
-  fillSelect($("#stuCourse"), COURSES, "id", "label");
+
+function fillSelect(el, items, valueKey, labelFn) {
+  if (!el) return;
+  if (items.length === 0) {
+    el.innerHTML = `<option value="">— none —</option>`;
+    return;
+  }
+  el.innerHTML = items
+    .map((x) => `<option value="${x[valueKey]}">${labelFn(x)}</option>`)
+    .join("");
 }
 
 /* ---- lecturer → course ---- */
-function renderLecList() {
-  if (lecAssignments.length === 0) {
-    $("#lecAssignList").innerHTML =
-      `<tr><td colspan="4" style="text-align:center;color:#999;padding:24px">No assignments yet.</td></tr>`;
+async function loadLecAssignments() {
+  const { data, error } = await db
+    .from("lecturer_courses")
+    .select(
+      `id, session, semester, profiles ( full_name ), courses ( course_code, course_title )`,
+    )
+    .order("id", { ascending: false });
+
+  if (error) {
+    console.error(error);
     return;
   }
-  $("#lecAssignList").innerHTML = lecAssignments
+
+  const body = $("#lecAssignList");
+  if (!data || data.length === 0) {
+    body.innerHTML = `<tr><td colspan="4" style="text-align:center;color:#999;padding:24px">No assignments yet.</td></tr>`;
+    return;
+  }
+  body.innerHTML = data
     .map(
-      (a, i) => `
+      (a) => `
     <tr>
-      <td class="name">${a.lec}</td>
-      <td>${a.course}</td>
+      <td class="name">${a.profiles?.full_name || "—"}</td>
+      <td>${a.courses ? a.courses.course_code + " · " + a.courses.course_title : "—"}</td>
       <td>${a.semester}</td>
-      <td class="r"><button class="btn-del" data-i="${i}">Remove</button></td>
+      <td class="r"><button class="btn-del" data-id="${a.id}">Remove</button></td>
     </tr>`,
     )
     .join("");
-  document.querySelectorAll("#lecAssignList .btn-del").forEach((b) =>
-    b.addEventListener("click", () => {
-      lecAssignments.splice(+b.dataset.i, 1);
-      renderLecList();
-      toast("Assignment removed");
-    }),
-  );
+
+  body
+    .querySelectorAll(".btn-del")
+    .forEach((b) =>
+      b.addEventListener("click", () => removeLecAssignment(b.dataset.id)),
+    );
 }
 
-function assign() {
-  const lec = $("#lecSelect").selectedOptions[0].text;
-  const course = $("#lecCourse").selectedOptions[0].text;
+async function assign() {
+  const lecturer_id = $("#lecSelect").value;
+  const course_id = $("#lecCourse").value;
   const semester = $("#lecSemester").value;
   const err = $("#lecError");
 
-  if (
-    lecAssignments.some(
-      (a) => a.lec === lec && a.course === course && a.semester === semester,
-    )
-  ) {
-    err.textContent =
-      "That lecturer is already assigned to this course this semester.";
+  if (!lecturer_id || !course_id) {
+    err.textContent = "Pick a lecturer and a course.";
     return;
   }
   err.textContent = "";
-  // → Supabase: insert into lecturer_courses (...)
-  lecAssignments.push({ lec, course, semester });
-  renderLecList();
+
+  const { error } = await db.from("lecturer_courses").insert({
+    lecturer_id,
+    course_id: Number(course_id),
+    session: SESSION,
+    semester,
+  });
+
+  if (error) {
+    err.textContent = error.message.includes("duplicate")
+      ? "That lecturer is already assigned to this course this semester."
+      : "Couldn't assign: " + error.message;
+    return;
+  }
+  await loadLecAssignments();
   toast("Course assigned");
 }
 
-/* ---- student → course ---- */
-function renderStuList() {
-  if (stuRegistrations.length === 0) {
-    $("#stuRegList").innerHTML =
-      `<tr><td colspan="4" style="text-align:center;color:#999;padding:24px">No registrations yet.</td></tr>`;
+async function removeLecAssignment(id) {
+  const { error } = await db.from("lecturer_courses").delete().eq("id", id);
+  if (error) {
+    toast("Couldn't remove: " + error.message, true);
     return;
   }
-  $("#stuRegList").innerHTML = stuRegistrations
+  await loadLecAssignments();
+  toast("Assignment removed");
+}
+
+/* ---- student → course ---- */
+async function loadStuRegistrations() {
+  const { data, error } = await db
+    .from("student_registrations")
+    .select(
+      `id, session, semester, profiles ( full_name, matric_number ), courses ( course_code, course_title )`,
+    )
+    .order("id", { ascending: false });
+
+  if (error) {
+    console.error(error);
+    return;
+  }
+
+  const body = $("#stuRegList");
+  if (!data || data.length === 0) {
+    body.innerHTML = `<tr><td colspan="4" style="text-align:center;color:#999;padding:24px">No registrations yet.</td></tr>`;
+    return;
+  }
+  body.innerHTML = data
     .map(
-      (r, i) => `
+      (r) => `
     <tr>
-      <td class="name">${r.stu}</td>
-      <td>${r.course}</td>
+      <td class="name">${r.profiles ? r.profiles.full_name + " (" + (r.profiles.matric_number || "—") + ")" : "—"}</td>
+      <td>${r.courses ? r.courses.course_code + " · " + r.courses.course_title : "—"}</td>
       <td>${r.semester}</td>
-      <td class="r"><button class="btn-del" data-i="${i}">Remove</button></td>
+      <td class="r"><button class="btn-del" data-id="${r.id}">Remove</button></td>
     </tr>`,
     )
     .join("");
-  document.querySelectorAll("#stuRegList .btn-del").forEach((b) =>
-    b.addEventListener("click", () => {
-      stuRegistrations.splice(+b.dataset.i, 1);
-      renderStuList();
-      toast("Registration removed");
-    }),
-  );
+
+  body
+    .querySelectorAll(".btn-del")
+    .forEach((b) =>
+      b.addEventListener("click", () => removeStuRegistration(b.dataset.id)),
+    );
 }
 
-function register() {
-  const stu = $("#stuSelect").selectedOptions[0].text;
-  const course = $("#stuCourse").selectedOptions[0].text;
+async function register() {
+  const student_id = $("#stuSelect").value;
+  const course_id = $("#stuCourse").value;
   const semester = $("#stuSemester").value;
   const err = $("#stuError");
 
-  if (
-    stuRegistrations.some(
-      (r) => r.stu === stu && r.course === course && r.semester === semester,
-    )
-  ) {
-    err.textContent =
-      "That student is already registered for this course this semester.";
+  if (!student_id || !course_id) {
+    err.textContent = "Pick a student and a course.";
     return;
   }
   err.textContent = "";
-  // → Supabase: insert into student_registrations (...)
-  stuRegistrations.push({ stu, course, semester });
-  renderStuList();
+
+  const { error } = await db.from("student_registrations").insert({
+    student_id,
+    course_id: Number(course_id),
+    session: SESSION,
+    semester,
+  });
+
+  if (error) {
+    err.textContent = error.message.includes("duplicate")
+      ? "That student is already registered for this course this semester."
+      : "Couldn't register: " + error.message;
+    return;
+  }
+  await loadStuRegistrations();
   toast("Student registered");
+}
+
+async function removeStuRegistration(id) {
+  const { error } = await db
+    .from("student_registrations")
+    .delete()
+    .eq("id", id);
+  if (error) {
+    toast("Couldn't remove: " + error.message, true);
+    return;
+  }
+  await loadStuRegistrations();
+  toast("Registration removed");
 }
 
 /* ---- toast ---- */
 let toastTimer;
-function toast(msg) {
+function toast(msg, isErr) {
   const t = $("#toast");
   t.textContent = msg;
-  t.className = "show";
+  t.className = "show" + (isErr ? " err" : "");
   clearTimeout(toastTimer);
   toastTimer = setTimeout(() => (t.className = ""), 2200);
 }
 
-/* ---- go ---- */
-initSelects();
-renderLecList();
-renderStuList();
 $("#assignBtn").addEventListener("click", assign);
 $("#registerBtn").addEventListener("click", register);
+loadRefData();
+loadLecAssignments();
+loadStuRegistrations();
