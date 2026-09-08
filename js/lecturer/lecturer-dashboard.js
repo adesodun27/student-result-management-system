@@ -1,23 +1,20 @@
 /* LECTURER DASHBOARD — wired to Supabase.
-   Loads the logged-in lecturer's assigned courses + their result status.
-   Tables: lecturer_courses (assignment) → courses (details) → results (status/progress) */
+   Loads the logged-in lecturer's assigned courses + result progress. */
 
 const $ = (s) => document.querySelector(s);
 
 async function loadDashboard() {
-  // who's logged in?
   const {
     data: { user },
   } = await db.auth.getUser();
   if (!user) {
-    // not logged in — will happen until auth is wired
     console.warn("No logged-in user yet");
     renderCourses([]);
     renderSummary([]);
     return;
   }
 
-  // load this lecturer's profile for the header
+  // header profile
   const { data: profile } = await db
     .from("profiles")
     .select("full_name, staff_id, department")
@@ -32,46 +29,45 @@ async function loadDashboard() {
       info.textContent = `Staff ID · ${profile.staff_id || "—"} · ${profile.department || "—"}`;
   }
 
-  // get this lecturer's assigned courses (join to course details)
+  // assigned courses
   const { data: assignments, error } = await db
     .from("lecturer_courses")
     .select(
-      `
-      id, session, semester,
-      courses ( id, course_code, course_title, credit_units, level )
-    `,
+      `id, session, semester, courses ( id, course_code, course_title, credit_units, level )`,
     )
     .eq("lecturer_id", user.id);
 
   if (error) {
     console.error(error);
     renderCourses([]);
+    renderSummary([]);
     return;
   }
 
-  // for each assigned course, get result progress
   const courses = [];
-  for (const a of assignments) {
+  for (const a of assignments || []) {
     const c = a.courses;
 
-    // how many students registered for this course?
-    const { count: total } = await db
+    // registrations for this course/session/semester
+    const { data: regs } = await db
       .from("student_registrations")
-      .select("*", { count: "exact", head: true })
+      .select("id")
       .eq("course_id", c.id)
       .eq("session", a.session)
       .eq("semester", a.semester);
 
-    // how many results entered + what status?
-    const { data: results } = await db
-      .from("results")
-      .select("status")
-      .eq("course_id", c.id)
-      .eq("session", a.session)
-      .eq("semester", a.semester);
+    const regIds = (regs || []).map((r) => r.id);
+    const total = regIds.length;
 
-    const scored = results ? results.length : 0;
-    const status = deriveStatus(results, total || 0);
+    // results for those registrations
+    let results = [];
+    if (regIds.length) {
+      const { data: res } = await db
+        .from("results")
+        .select("status")
+        .in("registration_id", regIds);
+      results = res || [];
+    }
 
     courses.push({
       id: c.id,
@@ -81,9 +77,9 @@ async function loadDashboard() {
       units: c.credit_units,
       semester: a.semester,
       session: a.session,
-      total: total || 0,
-      scored,
-      status,
+      total,
+      scored: results.length,
+      status: deriveStatus(results),
     });
   }
 
@@ -91,8 +87,7 @@ async function loadDashboard() {
   renderSummary(courses);
 }
 
-// work out the course's overall status from its result rows
-function deriveStatus(results, total) {
+function deriveStatus(results) {
   if (!results || results.length === 0) return "not-started";
   if (results.some((r) => r.status === "approved")) return "approved";
   if (results.some((r) => r.status === "submitted")) return "submitted";
@@ -124,9 +119,7 @@ function progressClass(scored, total) {
 
 function renderCourses(courses) {
   const wrap = document.querySelector(".courses-section");
-  // keep the section title, replace only the course cards
-  const existing = wrap.querySelectorAll(".course-card");
-  existing.forEach((el) => el.remove());
+  wrap.querySelectorAll(".course-card").forEach((el) => el.remove());
 
   if (courses.length === 0) {
     const empty = document.createElement("div");
@@ -140,6 +133,7 @@ function renderCourses(courses) {
   const shortlist = [...courses]
     .sort((a, b) => priority[a.status] - priority[b.status])
     .slice(0, 2);
+
   shortlist.forEach((c) => {
     const pct = c.total ? Math.round((c.scored / c.total) * 100) : 0;
     const card = document.createElement("div");
@@ -156,7 +150,7 @@ function renderCourses(courses) {
         <p>${c.scored} / ${c.total} scored</p>
       </div>
       ${statusBadge(c.status)}
-          <button class="course-button" onclick="location.href='score-entry.html?course=${c.id}&session=${encodeURIComponent(c.session)}&semester=${c.semester}'">
+      <button class="course-button" onclick="location.href='score-entry.html?course=${c.id}&session=${encodeURIComponent(c.session)}&semester=${c.semester}'">
         ${actionLabel(c.status)}
       </button>`;
     wrap.appendChild(card);

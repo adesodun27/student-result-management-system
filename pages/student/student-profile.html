@@ -23,7 +23,7 @@
       </div>
     </aside>
 
-    <main class="main-content">
+       <main class="main-content">
       <section class="page-head">
         <h1>My Profile</h1>
         <p>View your student information and academic details</p>
@@ -32,9 +32,9 @@
       <!-- Academic details -->
       <div class="profile-card" style="max-width:640px">
         <div class="profile-top">
-          <div class="avatar" id="avatar">JA</div>
+          <div class="avatar" id="avatar">—</div>
           <div>
-            <h2>John Adekunle</h2>
+            <h2 id="pName">—</h2>
             <span class="profile-role">Student</span>
           </div>
         </div>
@@ -42,65 +42,42 @@
         <div class="profile-details">
           <div class="detail-row">
             <span class="detail-label">Full Name</span>
-            <span class="detail-value">John Adekunle</span>
+            <span class="detail-value" id="pFullName">—</span>
           </div>
           <div class="detail-row">
             <span class="detail-label">Matric Number</span>
-            <span class="detail-value">CSC/2021/001</span>
+            <span class="detail-value" id="pMatric">—</span>
           </div>
           <div class="detail-row">
             <span class="detail-label">Department</span>
-            <span class="detail-value">Computer Science</span>
+            <span class="detail-value" id="pDept">—</span>
           </div>
           <div class="detail-row">
             <span class="detail-label">Level</span>
-            <span class="detail-value">400 Level</span>
-          </div>
-          <div class="detail-row">
-            <span class="detail-label">Programme</span>
-            <span class="detail-value">B.Sc. Computer Science</span>
-          </div>
-          <div class="detail-row">
-            <span class="detail-label">Session</span>
-            <span class="detail-value">2024/2025</span>
-          </div>
-          <div class="detail-row">
-            <span class="detail-label">Academic Status</span>
-            <span class="detail-value green">Good Standing</span>
+            <span class="detail-value" id="pLevel">—</span>
           </div>
         </div>
 
         <p class="profile-note">To update your details, contact the administrator.</p>
       </div>
 
-      <!-- Contact details -->
+      <!-- Contact -->
       <div class="profile-card" style="max-width:640px; margin-top:22px">
         <div class="profile-top" style="padding-bottom:16px; margin-bottom:16px">
-          <div>
-            <h2 style="font-size:16px">Contact Details</h2>
-          </div>
+          <div><h2 style="font-size:16px">Contact</h2></div>
         </div>
         <div class="profile-details">
           <div class="detail-row">
-            <span class="detail-label">Email Address</span>
-            <span class="detail-value">john.adekunle@example.com</span>
-          </div>
-          <div class="detail-row">
-            <span class="detail-label">Phone Number</span>
-            <span class="detail-value">+234 800 000 0000</span>
-          </div>
-          <div class="detail-row">
-            <span class="detail-label">Address</span>
-            <span class="detail-value">Lagos, Nigeria</span>
-          </div>
-          <div class="detail-row">
-            <span class="detail-label">Admission Year</span>
-            <span class="detail-value">2022</span>
+            <span class="detail-label">Login Email</span>
+            <span class="detail-value" id="pEmail">—</span>
           </div>
         </div>
       </div>
     </main>
 
+        <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="../../js/supabase-config.js"></script>
+    <script src="../../js/student/student-profile.js"></script>
     <script src="../../js/sidebar.js"></script>
     <script src="../../js/menu.js"></script>
     <script src="../../js/logout.js"></script>
