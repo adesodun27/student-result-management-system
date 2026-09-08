@@ -1,105 +1,109 @@
-/* ADMIN LECTURERS — mock data, wire to Supabase later.
-   NOTE (for Rodiyat): profiles needs staff_id, email, department columns.
-   Add lecturer = create auth user (username=staff_id, temp password=surname,
-   must_change_password=true) + insert profile (role='lecturer').
-   List = select from profiles where role='lecturer'. */
-
-let LECTURERS = [
-  {
-    name: "Dr. Adesodun Oladipo",
-    staffId: "LEC/2019/0142",
-    email: "adesodun@acadex.edu",
-    department: "Computer Science",
-  },
-  {
-    name: "Dr. Okafor Chinwe",
-    staffId: "LEC/2018/0091",
-    email: "okafor@acadex.edu",
-    department: "Computer Science",
-  },
-  {
-    name: "Prof. Bello Adamu",
-    staffId: "LEC/2010/0033",
-    email: "bello@acadex.edu",
-    department: "Mathematics",
-  },
-];
+/* ADMIN LECTURERS — wired to Supabase (create-user Edge Function). */
 
 const $ = (s) => document.querySelector(s);
 
-function renderList() {
-  if (LECTURERS.length === 0) {
+async function loadLecturers() {
+  const { data, error } = await db
+    .from("profiles")
+    .select("id, full_name, staff_id, email, department")
+    .eq("role", "lecturer")
+    .order("full_name");
+
+  if (error) {
     $("#lecturerList").innerHTML =
-      `<tr><td colspan="5" style="text-align:center;color:#999;padding:30px">
-        No lecturers yet. Add one above.
-      </td></tr>`;
+      `<tr><td colspan="5" style="text-align:center;color:#d9534f;padding:30px">Couldn't load: ${error.message}</td></tr>`;
     return;
   }
-  $("#lecturerList").innerHTML = LECTURERS.map(
-    (l, i) => `
+  if (!data || data.length === 0) {
+    $("#lecturerList").innerHTML =
+      `<tr><td colspan="5" style="text-align:center;color:#999;padding:30px">No lecturers yet.</td></tr>`;
+    return;
+  }
+  $("#lecturerList").innerHTML = data
+    .map(
+      (l) => `
     <tr>
-      <td class="matric">${l.staffId}</td>
-      <td class="name">${l.name}</td>
-      <td>${l.email}</td>
-      <td>${l.department}</td>
-      <td class="r"><button class="btn-del" data-i="${i}">Delete</button></td>
+      <td class="matric">${l.staff_id || "—"}</td>
+      <td class="name">${l.full_name}</td>
+      <td>${l.email || "—"}</td>
+      <td>${l.department || "—"}</td>
+      <td class="r"><button class="btn-del" data-id="${l.id}">Delete</button></td>
     </tr>`,
-  ).join("");
+    )
+    .join("");
 
   document
     .querySelectorAll(".btn-del")
     .forEach((b) =>
-      b.addEventListener("click", () => removeLecturer(+b.dataset.i)),
+      b.addEventListener("click", () => removeLecturer(b.dataset.id)),
     );
 }
 
-function addLecturer() {
+async function addLecturer() {
   const name = $("#name").value.trim();
   const staffId = $("#staffId").value.trim();
-  const email = $("#email").value.trim();
   const department = $("#department").value.trim();
   const err = $("#formError");
 
-  if (!name || !staffId || !email || !department) {
-    err.textContent = "Fill in all fields.";
-    return;
-  }
-  if (
-    LECTURERS.some((l) => l.staffId.toLowerCase() === staffId.toLowerCase())
-  ) {
-    err.textContent = "That staff ID already exists.";
+  if (!name || !staffId || !department) {
+    err.textContent = "Fill in name, staff ID, and department.";
     return;
   }
   err.textContent = "";
 
-  // → Supabase: create auth user + insert into profiles (role='lecturer', staff_id, ...)
-  LECTURERS.push({ name, staffId, email, department });
+  const loginEmail =
+    staffId.toLowerCase().replace(/\//g, "") + "@acadex.internal";
+  const surname = name.trim().split(" ").pop().toLowerCase();
+
+  const btn = $("#addBtn");
+  btn.disabled = true;
+
+  const { error } = await db.functions.invoke("create-user", {
+    body: {
+      email: loginEmail,
+      password: surname,
+      full_name: name,
+      role: "lecturer",
+      staff_id: staffId,
+      department: department,
+    },
+  });
+
+  btn.disabled = false;
+
+  if (error) {
+    err.textContent =
+      "Couldn't add lecturer: " + (error.message || "unknown error");
+    console.error(error);
+    return;
+  }
 
   $("#name").value = "";
   $("#staffId").value = "";
-  $("#email").value = "";
+  if ($("#email")) $("#email").value = "";
   $("#department").value = "";
-
-  renderList();
-  toast("Lecturer added");
+  await loadLecturers();
+  toast(`Lecturer added — login: ${staffId}, password: their surname`);
 }
 
-function removeLecturer(i) {
-  // → Supabase: delete lecturer profile (and auth user)
-  const l = LECTURERS[i];
-  LECTURERS.splice(i, 1);
-  renderList();
-  toast(`${l.name} removed`);
+async function removeLecturer(id) {
+  const { error } = await db.from("profiles").delete().eq("id", id);
+  if (error) {
+    toast("Couldn't delete: " + error.message, true);
+    return;
+  }
+  await loadLecturers();
+  toast("Lecturer removed");
 }
 
 let toastTimer;
-function toast(msg) {
+function toast(msg, isErr) {
   const t = $("#toast");
   t.textContent = msg;
-  t.className = "show";
+  t.className = "show" + (isErr ? " err" : "");
   clearTimeout(toastTimer);
   toastTimer = setTimeout(() => (t.className = ""), 2200);
 }
 
 $("#addBtn").addEventListener("click", addLecturer);
-renderList();
+loadLecturers();
