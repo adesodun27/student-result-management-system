@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ACADEX - Result Portal</title>
+    <link rel="stylesheet" href="../css/login.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+</head>
+<body>
+
+    <!-- Motion Background -->
+    <div class="bg-animation">
+        <div class="circle circle-1"></div>
+        <div class="circle circle-2"></div>
+        <div class="circle circle-3"></div>
+    </div>
+
+    <!-- Main Card -->
+    <div class="portal-card">
+        
+        <!-- Left Banner Section -->
+        <div class="banner-section">
+            <svg class="spiral-bg-graphic" viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
+                <path fill="rgba(255, 255, 255, 0.1)" d="M45.7,-77.6C58.9,-69.3,69.1,-56.3,76.8,-42.1C84.5,-27.9,89.7,-14,88.4,-0.7C87.1,12.5,79.2,25.1,70.8,37.8C62.3,50.4,53.2,63.1,40.8,70.9C28.4,78.7,12.7,81.6,-2.1,85.2C-16.8,88.8,-30.7,93.1,-43.3,86.8C-55.9,80.5,-67.2,63.6,-74.6,48.2C-82,32.8,-85.5,18.9,-85.3,5.1C-85.1,-8.7,-81.2,-22.4,-73.8,-34.8C-66.4,-47.2,-55.5,-58.3,-42.8,-66.8C-30.1,-75.3,-15.1,-81.2,0.6,-82.2C16.3,-83.2,32.5,-85.9,45.7,-77.6Z" transform="translate(100 100)" />
+            </svg>
+
+            <div class="banner-content">
+                <h1 class="brand-name">ACADEX</h1>
+                <h2 class="portal-title">Result Portal</h2>
+                <p class="portal-description">
+                    Securely access your academic results, student information and other portal services.
+                </p>
+            </div>
+
+            <!-- Spiral Edge Divider -->
+            <div class="spiral-edge-divider">
+                <svg viewBox="0 0 100 500" preserveAspectRatio="none">
+                    <path d="M0,0 C80,80 -30,180 70,270 C130,350 10,430 0,500 L0,500 L0,0 Z" fill="#2e7d32"></path>
+                </svg>
+            </div>
+        </div>
+
+        <!-- Right Login Form Section -->
+        <div class="form-section">
+            <div class="form-header">
+                <h2>Login</h2>
+                <p>Sign in to access the portal</p>
+            </div>
+
+            <form action="#" method="POST" class="login-form">
+                <div class="input-group">
+                    <label for="id-number">ID / Matric Number</label>
+                    <input type="text" id="id-number" placeholder="Enter your ID" required>
+                </div>
+
+                <div class="input-group">
+                    <label for="password">Password</label>
+                    <div class="password-wrapper">
+                        <input type="password" id="password" placeholder="Enter your password" required>
+                        <button type="button" class="toggle-password" id="togglePassword">Show</button>
+                    </div>
+                </div>
+
+                <div class="forgot-password">
+                    <a href="forgot-password.html">Forgot Password?</a>
+                </div>
+
+                <button type="submit" class="submit-btn">Login to Portal</button>
+            </form>
+        </div>
+
+    </div>
+
+    <script>
+        const togglePassword = document.querySelector('#togglePassword');
+        const password = document.querySelector('#password');
+
+        togglePassword.addEventListener('click', function () {
+            const type = password.getAttribute('type') === 'password' ? 'text' : 'password';
+            password.setAttribute('type', type);
+            this.textContent = type === 'password' ? 'Show' : 'Hide';
+        });
+    </script>
+</body>
+</html>
