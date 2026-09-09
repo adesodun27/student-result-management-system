@@ -1,13 +1,18 @@
-/* ADMIN APPROVALS — wired to Supabase (new schema).
-   Results attach to registration_id. Approve uses approve_result() RPC per row.
-   Lists submitted results grouped by course. */
+/* ADMIN APPROVALS — pending (submit→approve) + approved (reopen). */
 
 const $ = (s) => document.querySelector(s);
 let groups = [];
 let current = null;
+let mode = "submitted"; // "submitted" (pending) or "approved"
 
-async function loadSubmitted() {
-  // submitted results → join through registration → student + course
+function gradeClass(g) {
+  if (g === "A" || g === "B") return "grade-high";
+  if (g === "C" || g === "D") return "grade-mid";
+  return "grade-low";
+}
+
+async function loadResults() {
+  // load results in the current mode (submitted or approved)
   const { data, error } = await db
     .from("results")
     .select(
@@ -20,18 +25,15 @@ async function loadSubmitted() {
       )
     `,
     )
-    .eq("status", "submitted");
+    .eq("status", mode);
 
   if (error) {
     console.error(error);
     $("#submittedList").innerHTML =
-      `<tr><td colspan="6" style="text-align:center;color:#d9534f;padding:30px">
-        Couldn't load: ${error.message}
-      </td></tr>`;
+      `<tr><td colspan="6" style="text-align:center;color:#d9534f;padding:30px">Couldn't load: ${error.message}</td></tr>`;
     return;
   }
 
-  // group by course + session + semester
   const map = {};
   (data || []).forEach((r) => {
     const reg = r.student_registrations;
@@ -61,7 +63,6 @@ async function loadSubmitted() {
 
   groups = Object.values(map);
 
-  // lecturer name per group
   const { data: assignments } = await db
     .from("lecturer_courses")
     .select(`course_id, session, semester, profiles ( full_name )`);
@@ -79,20 +80,19 @@ async function loadSubmitted() {
   renderList();
 }
 
-function gradeClass(g) {
-  if (g === "A" || g === "B") return "grade-high";
-  if (g === "C" || g === "D") return "grade-mid";
-  return "grade-low";
-}
-
 function renderList() {
+  const label =
+    mode === "submitted" ? "waiting for approval" : "approved results";
   if (groups.length === 0) {
     $("#submittedList").innerHTML =
-      `<tr><td colspan="6" style="text-align:center;color:#999;padding:30px">
-        No results waiting for approval.
-      </td></tr>`;
+      `<tr><td colspan="6" style="text-align:center;color:#999;padding:30px">No ${label}.</td></tr>`;
     return;
   }
+  const statusBadge =
+    mode === "submitted"
+      ? `<span class="status-badge status-submitted">Submitted</span>`
+      : `<span class="status-badge status-approved">Approved</span>`;
+
   $("#submittedList").innerHTML = groups
     .map(
       (g, i) => `
@@ -101,7 +101,7 @@ function renderList() {
       <td>${g.lecturer || "—"}</td>
       <td class="r">${g.rows.length}</td>
       <td>${g.session} · ${g.semester}</td>
-      <td><span class="status-badge status-submitted">Submitted</span></td>
+      <td>${statusBadge}</td>
       <td class="r"><button class="btn-sm" data-i="${i}">Review</button></td>
     </tr>`,
     )
@@ -140,8 +140,24 @@ function openDetail(i) {
     )
     .join("");
 
-  $("#actionHint").textContent =
-    `Approving publishes all ${current.rows.length} results to students.`;
+  // show the right buttons for the mode
+  const approveBtn = $("#approveBtn");
+  const returnBtn = $("#returnBtn");
+  if (mode === "submitted") {
+    $("#actionHint").textContent =
+      `Approving publishes all ${current.rows.length} results to students.`;
+    approveBtn.style.display = "";
+    approveBtn.textContent = "Approve & Publish";
+    returnBtn.style.display = "";
+    returnBtn.textContent = "Return to Lecturer";
+  } else {
+    // approved mode — only reopen
+    $("#actionHint").textContent =
+      `These results are published. Reopen to let the lecturer edit them.`;
+    approveBtn.style.display = "none";
+    returnBtn.style.display = "";
+    returnBtn.textContent = "Reopen for Editing";
+  }
 
   $("#listView").classList.add("hidden");
   $("#detailView").classList.remove("hidden");
@@ -155,10 +171,8 @@ function backToList() {
   current = null;
 }
 
-/* approve — call approve_result() RPC for each result row */
 async function approve() {
   if (!current) return;
-
   let failed = 0;
   for (const r of current.rows) {
     const { error } = await db.rpc("approve_result", {
@@ -169,23 +183,18 @@ async function approve() {
       failed++;
     }
   }
-
-  if (failed > 0) {
-    toast(`Approved with ${failed} error(s) — check console`, true);
-  } else {
-    toast(`${current.code} approved — published to students`);
-  }
+  toast(
+    failed
+      ? `Approved with ${failed} error(s)`
+      : `${current.code} approved — published to students`,
+    failed > 0,
+  );
   backToList();
-  await loadSubmitted();
+  await loadResults();
 }
 
-/* return to lecturer — reopen_result() only works on APPROVED results,
-   so it can't return a 'submitted' one. Not usable from here. */
-/* return to lecturer — reopen_result() now works on submitted OR approved
-   results, sending them back to draft for the lecturer to fix. */
-async function returnToLecturer() {
+async function reopenOrReturn() {
   if (!current) return;
-
   let failed = 0;
   for (const r of current.rows) {
     const { error } = await db.rpc("reopen_result", {
@@ -196,15 +205,23 @@ async function returnToLecturer() {
       failed++;
     }
   }
-
-  if (failed > 0) {
-    toast(`Returned with ${failed} error(s) — check console`, true);
-  } else {
-    toast(`${current.code} returned to lecturer for correction`);
-  }
+  const msg =
+    mode === "submitted"
+      ? `${current.code} returned to lecturer for correction`
+      : `${current.code} reopened — lecturer can now edit`;
+  toast(failed ? `Done with ${failed} error(s)` : msg, failed > 0);
   backToList();
-  await loadSubmitted();
+  await loadResults();
 }
+
+function switchTab(newMode) {
+  mode = newMode;
+  $("#tabPending").classList.toggle("active", newMode === "submitted");
+  $("#tabApproved").classList.toggle("active", newMode === "approved");
+  backToList();
+  loadResults();
+}
+
 let toastTimer;
 function toast(msg, isErr) {
   const t = $("#toast");
@@ -219,5 +236,7 @@ $("#backToList").addEventListener("click", (e) => {
   backToList();
 });
 $("#approveBtn").addEventListener("click", approve);
-$("#returnBtn").addEventListener("click", returnToLecturer);
-loadSubmitted();
+$("#returnBtn").addEventListener("click", reopenOrReturn);
+$("#tabPending").addEventListener("click", () => switchTab("submitted"));
+$("#tabApproved").addEventListener("click", () => switchTab("approved"));
+loadResults();

@@ -8,10 +8,12 @@
   </head>
   <body>
     <aside class="sidebar">
-    <div class="sidebar-header">
-  <div class="logo"><h2>ACADEX</h2></div>
-  <button class="hamburger" id="hamburger" title="Menu" aria-label="Menu">☰</button>
-</div>
+      <div class="sidebar-header">
+        <div class="logo"><h2>ACADEX</h2></div>
+        <button class="hamburger" id="hamburger" title="Menu" aria-label="Menu">
+          ☰
+        </button>
+      </div>
       <nav class="sidebar-nav">
         <a href="admin-dashboard.html" class="nav-link">Dashboard</a>
         <a href="admin-students.html" class="nav-link">Students</a>
@@ -21,7 +23,7 @@
         <a href="admin-approvals.html" class="nav-link">Approvals</a>
       </nav>
       <div class="sidebar-bottom">
-        <a href="admin-login.html" class="nav-link logout">Logout</a>
+        <a href="../login.html" class="nav-link logout">Logout</a>
       </div>
     </aside>
 
@@ -37,7 +39,11 @@
         <div class="form-row">
           <div class="form-field">
             <label for="name">Full Name</label>
-            <input id="name" type="text" placeholder="e.g. Dr. Adesodun Oladipo" />
+            <input
+              id="name"
+              type="text"
+              placeholder="e.g. Dr. Adesodun Oladipo"
+            />
           </div>
           <div class="form-field">
             <label for="staffId">Staff ID</label>
@@ -45,11 +51,19 @@
           </div>
           <div class="form-field">
             <label for="email">Email</label>
-            <input id="email" type="email" placeholder="e.g. lecturer@acadex.edu" />
+            <input
+              id="email"
+              type="email"
+              placeholder="e.g. lecturer@acadex.edu"
+            />
           </div>
           <div class="form-field">
             <label for="department">Department</label>
-            <input id="department" type="text" placeholder="e.g. Computer Science" />
+            <input
+              id="department"
+              type="text"
+              placeholder="e.g. Computer Science"
+            />
           </div>
           <button class="course-button" id="addBtn">Add Lecturer</button>
         </div>
@@ -75,11 +89,10 @@
 
     <div id="toast"></div>
 
-  
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="../../js/supabase-config.js"></script>
     <script src="../../js/admin/admin-lecturers.js"></script>
-      <script src="../../js/sidebar.js"></script>
+    <script src="../../js/sidebar.js"></script>
     <script src="../../js/menu.js"></script>
   </body>
 </html>

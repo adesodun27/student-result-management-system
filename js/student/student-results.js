@@ -10,6 +10,11 @@ function gradeClass(g) {
 function gradePoint(g) {
   return { A: 5, B: 4, C: 3, D: 2, E: 1, F: 0 }[g] ?? 0;
 }
+// safe setter — won't crash if an element is missing
+function set(id, value) {
+  const el = document.getElementById(id);
+  if (el) el.textContent = value;
+}
 
 async function loadResults() {
   const {
@@ -37,11 +42,12 @@ async function loadResults() {
   const approved = courses.filter((c) => c.status === "approved");
 
   // summary cards
-  $("#cardGpa").textContent = summary.cgpa ?? "—";
-  $("#cardCount").textContent = approved.length;
-  $("#cardUnits").textContent = summary.completed_units ?? "—";
-  $("#cardStatus").textContent = summary.cgpa >= 1.5 ? "Good Standing" : "—";
+  set("cardGpa", summary.cgpa ?? "—");
+  set("cardCount", approved.length);
+  set("cardUnits", summary.completed_units ?? "—");
+  set("cardStatus", summary.cgpa >= 1.5 ? "Good Standing" : "—");
 
+  // results table
   if (approved.length === 0) {
     $("#resultsBody").innerHTML =
       `<tr><td colspan="7" style="text-align:center;color:#999;padding:26px">No approved results yet.</td></tr>`;

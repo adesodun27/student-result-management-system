@@ -1,410 +1,435 @@
 * {
-    margin: 0;
-    padding: 0;
-    box-sizing: border-box;
-    font-family: 'Poppins', sans-serif;
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  font-family: "Poppins", sans-serif;
+}
+
+html {
+  height: 100%;
 }
 
 body {
-    min-height: 100vh;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    background: linear-gradient(-45deg, #e8f5e9, #f1f8e9, #c8e6c9, #e0f2f1);
-    background-size: 400% 400%;
-    animation: gradientShift 12s ease infinite;
-    position: relative;
-    overflow: hidden;
-    padding: 20px;
+  min-height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background: linear-gradient(-45deg, #e8f5e9, #f1f8e9, #c8e6c9, #e0f2f1);
+  background-size: 400% 400%;
+  animation: gradientShift 12s ease infinite;
+  position: relative;
+  overflow: hidden;
+  padding: 20px;
 }
 
 @keyframes gradientShift {
-    0% { background-position: 0% 50%; }
-    50% { background-position: 100% 50%; }
-    100% { background-position: 0% 50%; }
+  0% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+  100% {
+    background-position: 0% 50%;
+  }
 }
 
+/* ===== Animated background circles ===== */
 .bg-animation {
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    z-index: 0;
-    pointer-events: none;
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 0;
+  pointer-events: none;
+  overflow: hidden;
 }
 
 .circle {
-    position: absolute;
-    border-radius: 50%;
-    background: rgba(76, 175, 80, 0.2);
-    backdrop-filter: blur(8px);
-    animation: float 16s infinite ease-in-out;
+  position: absolute;
+  border-radius: 50%;
+  background: rgba(76, 175, 80, 0.2);
+  animation: float 16s infinite ease-in-out;
+  will-change: transform;
 }
 
 .circle-1 {
-    width: 380px;
-    height: 380px;
-    top: -100px;
-    left: -100px;
-    animation-delay: 0s;
+  width: 380px;
+  height: 380px;
+  top: -100px;
+  left: -100px;
+  animation-delay: 0s;
 }
-
 .circle-2 {
-    width: 450px;
-    height: 450px;
-    bottom: -130px;
-    right: -100px;
-    animation-delay: -5s;
-    background: rgba(129, 199, 132, 0.25);
+  width: 450px;
+  height: 450px;
+  bottom: -130px;
+  right: -100px;
+  animation-delay: -5s;
+  background: rgba(129, 199, 132, 0.25);
 }
-
 .circle-3 {
-    width: 250px;
-    height: 250px;
-    top: 30%;
-    right: 15%;
-    animation-delay: -10s;
-    background: rgba(165, 214, 167, 0.3);
+  width: 250px;
+  height: 250px;
+  top: 30%;
+  right: 15%;
+  animation-delay: -10s;
+  background: rgba(165, 214, 167, 0.3);
 }
 
 @keyframes float {
-    0%, 100% { transform: translateY(0) rotate(0deg) scale(1); }
-    50% { transform: translateY(-40px) rotate(180deg) scale(1.08); }
+  0%,
+  100% {
+    transform: translateY(0) scale(1);
+  }
+  50% {
+    transform: translateY(-40px) scale(1.08);
+  }
 }
 
+/* ===== Main card ===== */
 .portal-card {
-    position: relative;
-    z-index: 1;
-    display: flex;
-    width: 100%;
-    max-width: 900px;
-    min-height: 480px;
-    background: #ffffff;
-    border-radius: 20px;
-    box-shadow: 0 15px 35px rgba(0, 0, 0, 0.08);
-    overflow: hidden;
+  position: relative;
+  z-index: 1;
+  display: flex;
+  width: 100%;
+  max-width: 900px;
+  min-height: 480px;
+  background: #ffffff;
+  border-radius: 20px;
+  box-shadow: 0 15px 35px rgba(0, 0, 0, 0.08);
+  overflow: hidden;
 }
 
+/* ===== Left banner ===== */
 .banner-section {
-    flex: 1.1;
-    background: linear-gradient(135deg, #1b5e20 0%, #2e7d32 60%, #388e3c 100%);
-    color: #ffffff;
-    padding: 50px 45px;
-    display: flex;
-    align-items: center;
-    position: relative;
+  flex: 1.1;
+  background: linear-gradient(135deg, #1b5e20 0%, #2e7d32 60%, #388e3c 100%);
+  color: #ffffff;
+  padding: 50px 45px;
+  display: flex;
+  align-items: center;
+  position: relative;
 }
 
 .spiral-bg-graphic {
-    position: absolute;
-    top: -50px;
-    left: -50px;
-    width: 320px;
-    height: 320px;
-    pointer-events: none;
+  position: absolute;
+  top: -50px;
+  left: -50px;
+  width: 320px;
+  height: 320px;
+  pointer-events: none;
 }
 
 .banner-content {
-    position: relative;
-    z-index: 3;
-    width: 100%;
+  position: relative;
+  z-index: 3;
+  width: 100%;
 }
 
 .brand-name {
-    font-size: 2.8rem;
-    font-weight: 800;
-    letter-spacing: 1.5px;
-    margin-bottom: 18px;
-    color: #ffffff;
+  font-size: 2.8rem;
+  font-weight: 800;
+  letter-spacing: 1.5px;
+  margin-bottom: 18px;
+  color: #ffffff;
 }
 
 .portal-title {
-    font-size: 1.6rem;
-    font-weight: 600;
-    margin-bottom: 14px;
-    line-height: 1.3;
+  font-size: 1.6rem;
+  font-weight: 600;
+  margin-bottom: 14px;
+  line-height: 1.3;
 }
 
 .portal-description {
-    font-size: 0.92rem;
-    color: #e8f5e9;
-    line-height: 1.6;
-    font-weight: 300;
+  font-size: 0.92rem;
+  color: #e8f5e9;
+  line-height: 1.6;
+  font-weight: 300;
 }
 
 .spiral-edge-divider {
-    position: absolute;
-    top: 0;
-    right: -35px;
-    width: 50px;
-    height: 100%;
-    z-index: 2;
-    pointer-events: none;
+  position: absolute;
+  top: 0;
+  right: -35px;
+  width: 50px;
+  height: 100%;
+  z-index: 2;
+  pointer-events: none;
 }
 
 .spiral-edge-divider svg {
-    width: 100%;
-    height: 100%;
+  width: 100%;
+  height: 100%;
 }
 
+/* ===== Right form ===== */
 .form-section {
-    flex: 1;
-    background-color: #ffffff;
-    padding: 50px 45px 50px 60px;
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    position: relative;
-    z-index: 1;
+  flex: 1;
+  background-color: #ffffff;
+  padding: 50px 45px 50px 60px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  position: relative;
+  z-index: 1;
 }
 
 .form-header h2 {
-    font-size: 1.8rem;
-    color: #1a3322;
-    font-weight: 700;
-    margin-bottom: 6px;
+  font-size: 1.8rem;
+  color: #1a3322;
+  font-weight: 700;
+  margin-bottom: 6px;
 }
 
 .form-header p {
-    font-size: 0.88rem;
-    color: #6c757d;
-    margin-bottom: 24px;
+  font-size: 0.88rem;
+  color: #6c757d;
+  margin-bottom: 24px;
 }
 
+/* ===== Multi-step (forgot password) ===== */
 .step-container {
-    display: none;
+  display: none;
 }
-
 .step-container.active-step {
-    display: block;
-    animation: fadeIn 0.4s ease-in-out;
+  display: block;
+  animation: fadeIn 0.4s ease-in-out;
 }
 
 @keyframes fadeIn {
-    from { opacity: 0; transform: translateY(10px); }
-    to { opacity: 1; transform: translateY(0); }
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
+/* ===== Form fields ===== */
 .login-form {
-    display: flex;
-    flex-direction: column;
+  display: flex;
+  flex-direction: column;
 }
 
 .input-group {
-    margin-bottom: 18px;
+  margin-bottom: 18px;
 }
 
 .input-group label {
-    display: block;
-    font-size: 0.85rem;
-    font-weight: 700;
-    color: #1a3322;
-    margin-bottom: 8px;
+  display: block;
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: #1a3322;
+  margin-bottom: 8px;
 }
 
 .input-group input {
-    width: 100%;
-    padding: 12px 16px;
-    font-size: 0.9rem;
-    border: 1.5px solid #e0e0e0;
-    border-radius: 8px;
-    outline: none;
-    transition: all 0.3s ease;
-    background-color: #fcfcfc;
+  width: 100%;
+  padding: 12px 16px;
+  font-size: 0.9rem;
+  border: 1.5px solid #e0e0e0;
+  border-radius: 8px;
+  outline: none;
+  transition:
+    border-color 0.2s ease,
+    box-shadow 0.2s ease;
+  background-color: #fcfcfc;
 }
 
 .input-group input:focus {
-    border-color: #2e7d32;
-    background-color: #ffffff;
-    box-shadow: 0 0 0 3px rgba(46, 125, 50, 0.15);
+  border-color: #2e7d32;
+  background-color: #ffffff;
+  box-shadow: 0 0 0 3px rgba(46, 125, 50, 0.15);
 }
 
 .password-wrapper {
-    position: relative;
-    display: flex;
-    align-items: center;
+  position: relative;
+  display: flex;
+  align-items: center;
 }
 
 .password-wrapper input {
-    padding-right: 65px;
+  padding-right: 65px;
 }
 
 .toggle-password {
-    position: absolute;
-    right: 14px;
-    background: none;
-    border: none;
-    color: #2e7d32;
-    font-weight: 600;
-    font-size: 0.85rem;
-    cursor: pointer;
+  position: absolute;
+  right: 14px;
+  background: none;
+  border: none;
+  color: #2e7d32;
+  font-weight: 600;
+  font-size: 0.85rem;
+  cursor: pointer;
 }
 
+/* ===== Links ===== */
 .forgot-password {
-    text-align: right;
-    margin-top: -6px;
-    margin-bottom: 24px;
+  text-align: right;
+  margin-top: -6px;
+  margin-bottom: 24px;
 }
 
 .forgot-password a {
-    color: #2e7d32;
-    font-size: 0.88rem;
-    font-weight: 700;
-    text-decoration: none;
+  color: #2e7d32;
+  font-size: 0.88rem;
+  font-weight: 700;
+  text-decoration: none;
 }
 
 .forgot-password a:hover {
-    text-decoration: underline;
+  text-decoration: underline;
 }
 
 .back-to-login {
-    text-align: center;
-    margin-top: 18px;
+  text-align: center;
+  margin-top: 18px;
 }
 
 .back-to-login a {
-    color: #2e7d32;
-    font-size: 0.85rem;
-    font-weight: 600;
-    text-decoration: none;
+  color: #2e7d32;
+  font-size: 0.85rem;
+  font-weight: 600;
+  text-decoration: none;
 }
 
 .back-to-login a:hover {
-    text-decoration: underline;
+  text-decoration: underline;
 }
 
+/* ===== Button ===== */
 .submit-btn {
-    width: 100%;
-    padding: 13px;
-    background-color: #2e7d32;
-    color: #ffffff;
-    border: none;
-    border-radius: 8px;
-    font-size: 0.95rem;
-    font-weight: 700;
-    cursor: pointer;
-    text-decoration: none;
-    transition: background-color 0.3s ease, transform 0.1s ease;
+  width: 100%;
+  padding: 13px;
+  background-color: #2e7d32;
+  color: #ffffff;
+  border: none;
+  border-radius: 8px;
+  font-size: 0.95rem;
+  font-weight: 700;
+  cursor: pointer;
+  text-decoration: none;
+  transition:
+    background-color 0.3s ease,
+    transform 0.1s ease;
 }
 
 .text-center-btn {
-    display: block;
-    text-align: center;
+  display: block;
+  text-align: center;
 }
 
 .submit-btn:hover {
-    background-color: #236528;
+  background-color: #236528;
 }
-
 .submit-btn:active {
-    transform: scale(0.99);
+  transform: scale(0.99);
 }
 
 .text-center {
-    text-align: center;
+  text-align: center;
 }
 
 .success-icon {
-    width: 60px;
-    height: 60px;
-    background-color: #e8f5e9;
-    color: #2e7d32;
-    border-radius: 50%;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    font-size: 1.8rem;
-    font-weight: 800;
-    margin: 0 auto 16px auto;
+  width: 60px;
+  height: 60px;
+  background-color: #e8f5e9;
+  color: #2e7d32;
+  border-radius: 50%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-size: 1.8rem;
+  font-weight: 800;
+  margin: 0 auto 16px auto;
 }
 
-/* ===== TABLET & SMALL LAPTOP ===== */
+/* ===== Tablet ===== */
 @media (max-width: 900px) {
-    .portal-card {
-        max-width: 90%;
-        min-height: auto;
-    }
-    .banner-section {
-        padding: 40px 35px;
-    }
-    .form-section {
-        padding: 40px 35px;
-    }
+  .portal-card {
+    max-width: 90%;
+    min-height: auto;
+  }
+  .banner-section {
+    padding: 40px 35px;
+  }
+  .form-section {
+    padding: 40px 35px;
+  }
 }
 
-/* ===== MOBILE — stack banner on top of form ===== */
+/* ===== Mobile ===== */
 @media (max-width: 768px) {
-    body {
-        padding: 16px;
-        align-items: flex-start;
-        padding-top: 30px;
-    }
-
-    .portal-card {
-        flex-direction: column;
-        max-width: 440px;
-        min-height: auto;
-    }
-
-    .spiral-edge-divider {
-        display: none;
-    }
-
-    .banner-section {
-        padding: 34px 28px;
-        flex: none;
-    }
-
-    .spiral-bg-graphic {
-        width: 220px;
-        height: 220px;
-    }
-
-    .brand-name {
-        font-size: 2.2rem;
-        margin-bottom: 12px;
-    }
-
-    .portal-title {
-        font-size: 1.35rem;
-    }
-
-    .portal-description {
-        font-size: 0.85rem;
-    }
-
-    .form-section {
-        padding: 34px 28px;
-        flex: none;
-    }
+  body {
+    padding: 16px;
+    align-items: flex-start;
+    padding-top: 30px;
+  }
+  .portal-card {
+    flex-direction: column;
+    max-width: 440px;
+    min-height: auto;
+  }
+  .spiral-edge-divider {
+    display: none;
+  }
+  .banner-section {
+    padding: 34px 28px;
+    flex: none;
+  }
+  .spiral-bg-graphic {
+    width: 220px;
+    height: 220px;
+  }
+  .brand-name {
+    font-size: 2.2rem;
+    margin-bottom: 12px;
+  }
+  .portal-title {
+    font-size: 1.35rem;
+  }
+  .portal-description {
+    font-size: 0.85rem;
+  }
+  .form-section {
+    padding: 34px 28px;
+    flex: none;
+  }
 }
 
-/* ===== SMALL PHONES ===== */
+/* ===== Small phones ===== */
 @media (max-width: 420px) {
-    body {
-        padding: 10px;
-        padding-top: 20px;
-    }
-
-    .banner-section {
-        padding: 28px 22px;
-    }
-
-    .form-section {
-        padding: 28px 22px;
-    }
-
-    .brand-name {
-        font-size: 1.9rem;
-    }
-
-    .form-header h2 {
-        font-size: 1.5rem;
-    }
-
-    /* shrink the floating circles so they don't overflow weirdly */
-    .circle-1 { width: 240px; height: 240px; }
-    .circle-2 { width: 280px; height: 280px; }
-    .circle-3 { width: 160px; height: 160px; }
+  body {
+    padding: 10px;
+    padding-top: 20px;
+  }
+  .banner-section {
+    padding: 28px 22px;
+  }
+  .form-section {
+    padding: 28px 22px;
+  }
+  .brand-name {
+    font-size: 1.9rem;
+  }
+  .form-header h2 {
+    font-size: 1.5rem;
+  }
+  .circle-1 {
+    width: 240px;
+    height: 240px;
+  }
+  .circle-2 {
+    width: 280px;
+    height: 280px;
+  }
+  .circle-3 {
+    width: 160px;
+    height: 160px;
+  }
 }

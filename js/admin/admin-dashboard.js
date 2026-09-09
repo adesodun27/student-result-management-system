@@ -17,23 +17,29 @@ async function loadDashboard() {
   ]);
 
   // submitted results → group by course to count pending + build table
+  // submitted results → join through registration to get course info
   const { data: submitted } = await db
     .from("results")
     .select(
-      `course_id, session, semester, courses ( course_code, course_title )`,
+      `
+      id,
+      student_registrations ( course_id, session, semester, courses ( course_code, course_title ) )
+    `,
     )
     .eq("status", "submitted");
 
-  // group into distinct course/session/semester
+  // group by course + session + semester
   const groups = {};
   (submitted || []).forEach((r) => {
-    const key = `${r.course_id}|${r.session}|${r.semester}`;
+    const reg = r.student_registrations;
+    if (!reg) return;
+    const key = `${reg.course_id}|${reg.session}|${reg.semester}`;
     if (!groups[key]) {
       groups[key] = {
-        code: r.courses?.course_code || "—",
-        title: r.courses?.course_title || "—",
-        session: r.session,
-        semester: r.semester,
+        code: reg.courses?.course_code || "—",
+        title: reg.courses?.course_title || "—",
+        session: reg.session,
+        semester: reg.semester,
         count: 0,
       };
     }

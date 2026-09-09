@@ -875,6 +875,21 @@ td.r {
   justify-content: space-between;
 }
 
+.tab-btn {
+  padding: 9px 18px;
+  border: 1px solid #ddd;
+  background: #fff;
+  color: #555;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 14px;
+}
+.tab-btn.active {
+  background: #2e8b57;
+  color: #fff;
+  border-color: #2e8b57;
+}
+
 /* =========================
    RESPONSIVE
 ========================= */
