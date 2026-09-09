@@ -7,6 +7,21 @@ function gradeClass(g) {
   if (g === "C" || g === "D") return "grade-mid";
   return "grade-low";
 }
+
+// overall class from CGPA
+function classOfDegree(cgpa) {
+  const g = Number(cgpa) || 0;
+  if (g >= 4.5) return "First Class";
+  if (g >= 3.5) return "Second Class Upper";
+  if (g >= 2.0) return "Second Class Lower";
+  if (g >= 1.0) return "Third Class";
+  return "Failed";
+}
+
+// individual course status from score
+function courseStatus(score) {
+  return Number(score) >= 40 ? "Passed" : "Carry Over";
+}
 function gradePoint(g) {
   return { A: 5, B: 4, C: 3, D: 2, E: 1, F: 0 }[g] ?? 0;
 }
@@ -45,7 +60,7 @@ async function loadResults() {
   set("cardGpa", summary.cgpa ?? "—");
   set("cardCount", approved.length);
   set("cardUnits", summary.completed_units ?? "—");
-  set("cardStatus", summary.cgpa >= 1.5 ? "Good Standing" : "—");
+set("cardStatus", classOfDegree(summary.cgpa));
 
   // results table
   if (approved.length === 0) {
@@ -55,8 +70,13 @@ async function loadResults() {
   }
 
   $("#resultsBody").innerHTML = approved
-    .map(
-      (c) => `
+    .map((c) => {
+      const status = courseStatus(c.total_score);
+      const badge =
+        status === "Passed"
+          ? `<span class="status-badge status-approved">Passed</span>`
+          : `<span class="status-badge status-not-started">Carry Over</span>`;
+      return `
     <tr>
       <td class="name">${c.course_code}</td>
       <td>${c.course_title}</td>
@@ -64,9 +84,9 @@ async function loadResults() {
       <td class="r">${c.total_score ?? "—"}</td>
       <td><span class="grade-tag ${gradeClass(c.grade)}">${c.grade || "—"}</span></td>
       <td class="r">${gradePoint(c.grade).toFixed(2)}</td>
-      <td><span class="status-badge status-approved">Approved</span></td>
-    </tr>`,
-    )
+      <td>${badge}</td>
+    </tr>`;
+    })
     .join("");
 }
 
