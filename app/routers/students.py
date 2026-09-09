@@ -68,3 +68,30 @@ def get_student_gradebook(matric_number: str):
             "cgpa": cgpa
         }
     }
+
+# 1. Make sure these imports are at the top of app/routers/students.py
+from fastapi.responses import StreamingResponse
+from app.reports import generate_student_transcript_pdf
+
+# 2. Add (append) this function to the bottom of app/routers/students.py
+@router.get("/{matric_number:path}/download-pdf", tags=["Students Workflow"])
+async def download_student_transcript(matric_number: str):
+    # Fetch student profile
+    student_res = supabase.table("profiles").select("*").eq("matric_number", matric_number).execute()
+    if not student_res.data:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Student profile not found")
+    
+    student_info = student_res.data[0]
+
+    # Fetch student results
+    results_res = supabase.table("results").select("*").eq("matric_number", matric_number).execute()
+    
+    # Generate binary PDF stream
+    pdf_buffer = generate_student_transcript_pdf(student_info, results_res.data or [])
+    filename = f"Transcript_{matric_number.replace('/', '_')}.pdf"
+    
+    return StreamingResponse(
+        pdf_buffer,
+        media_type="application/pdf",
+        headers={"Content-Disposition": f"attachment; filename={filename}"}
+    )
