@@ -9,6 +9,12 @@ function gradeClass(g) {
   return "grade-low";
 }
 
+// safe setter — won't crash if an element is missing
+function set(id, value) {
+  const el = document.getElementById(id);
+  if (el) el.textContent = value;
+}
+
 async function loadDashboard() {
   const {
     data: { user },
@@ -19,6 +25,7 @@ async function loadDashboard() {
     return;
   }
 
+  // profile → header + level card
   const { data: profile } = await db
     .from("profiles")
     .select("full_name, matric_number, department, level")
@@ -26,12 +33,15 @@ async function loadDashboard() {
     .single();
 
   if (profile) {
-    $("#welcomeName").textContent = `Welcome, ${profile.full_name} 👋`;
-    $("#studentInfo").textContent =
-      `Matric No · ${profile.matric_number || "—"} · ${profile.department || "—"}`;
-    $("#cardLevel").textContent = profile.level || "—";
+    set("welcomeName", `Welcome, ${profile.full_name} 👋`);
+    set(
+      "studentInfo",
+      `Matric No · ${profile.matric_number || "—"} · ${profile.department || "—"}`,
+    );
+    set("cardLevel", profile.level || "—");
   }
 
+  // results + GPA (one RPC call)
   const { data, error } = await db.rpc("get_student_results_with_summary", {
     p_student_id: user.id,
   });
@@ -48,20 +58,21 @@ async function loadDashboard() {
   const approved = courses.filter((c) => c.status === "approved");
 
   // summary cards
-  $("#cardCompleted").textContent = approved.length;
-  $("#cardStatus").textContent = summary.cgpa >= 1.5 ? "Good Standing" : "—";
+  set("cardGpa", summary.cgpa ?? "—");
+  set("cardCompleted", approved.length);
+  set("cardStatus", summary.cgpa >= 1.5 ? "Good Standing" : "—");
 
   // academic overview
-  $("#ovCgpa").textContent = (summary.cgpa ?? 0) + " / 5.00";
-  $("#ovUnits").textContent = summary.completed_units ?? "—";
-  $("#ovGrad").textContent = "—"; // no graduation data in DB
+  set("ovCgpa", (summary.cgpa ?? 0) + " / 5.00");
+  set("ovUnits", summary.completed_units ?? "—");
 
-  // recent results (approved)
+  // recent results (approved only)
   if (approved.length === 0) {
     $("#recentResults").innerHTML =
       `<tr><td colspan="6" style="text-align:center;color:#999;padding:26px">No approved results yet.</td></tr>`;
     return;
   }
+
   $("#recentResults").innerHTML = approved
     .slice(0, 5)
     .map(
