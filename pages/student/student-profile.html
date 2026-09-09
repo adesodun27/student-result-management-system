@@ -10,12 +10,15 @@
     <aside class="sidebar">
       <div class="sidebar-header">
         <div class="logo"><h2>ACADEX</h2></div>
-        <button class="hamburger" id="hamburger" title="Menu" aria-label="Menu">☰</button>
+        <button class="hamburger" id="hamburger" title="Menu" aria-label="Menu">
+          ☰
+        </button>
       </div>
       <nav class="sidebar-nav">
         <a href="student-dashboard.html" class="nav-link">Dashboard</a>
         <a href="result.html" class="nav-link">My Results</a>
         <a href="courses.html" class="nav-link">Courses</a>
+        <a href="support.html" class="nav-link">Support</a>
         <a href="student-profile.html" class="nav-link">My Profile</a>
       </nav>
       <div class="sidebar-bottom">
@@ -23,14 +26,14 @@
       </div>
     </aside>
 
-       <main class="main-content">
+    <main class="main-content">
       <section class="page-head">
         <h1>My Profile</h1>
         <p>View your student information and academic details</p>
       </section>
 
       <!-- Academic details -->
-      <div class="profile-card" style="max-width:640px">
+      <div class="profile-card" style="max-width: 640px">
         <div class="profile-top">
           <div class="avatar" id="avatar">—</div>
           <div>
@@ -58,13 +61,18 @@
           </div>
         </div>
 
-        <p class="profile-note">To update your details, contact the administrator.</p>
+        <p class="profile-note">
+          To update your details, contact the administrator.
+        </p>
       </div>
 
       <!-- Contact -->
-      <div class="profile-card" style="max-width:640px; margin-top:22px">
-        <div class="profile-top" style="padding-bottom:16px; margin-bottom:16px">
-          <div><h2 style="font-size:16px">Contact</h2></div>
+      <div class="profile-card" style="max-width: 640px; margin-top: 22px">
+        <div
+          class="profile-top"
+          style="padding-bottom: 16px; margin-bottom: 16px"
+        >
+          <div><h2 style="font-size: 16px">Contact</h2></div>
         </div>
         <div class="profile-details">
           <div class="detail-row">
@@ -75,7 +83,7 @@
       </div>
     </main>
 
-        <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="../../js/supabase-config.js"></script>
     <script src="../../js/student/student-profile.js"></script>
     <script src="../../js/sidebar.js"></script>

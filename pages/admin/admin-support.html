@@ -1,0 +1,63 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Support · ACADEX</title>
+    <link rel="stylesheet" href="../../css/style.css" />
+  </head>
+  <body>
+    <aside class="sidebar">
+      <div class="sidebar-header">
+        <div class="logo"><h2>ACADEX</h2></div>
+        <button class="hamburger" id="hamburger" title="Menu" aria-label="Menu">☰</button>
+      </div>
+      <nav class="sidebar-nav">
+        <a href="admin-dashboard.html" class="nav-link">Dashboard</a>
+        <a href="admin-students.html" class="nav-link">Students</a>
+        <a href="admin-lecturers.html" class="nav-link">Lecturers</a>
+        <a href="admin-courses.html" class="nav-link">Courses</a>
+        <a href="admin-assignments.html" class="nav-link">Assignments</a>
+        <a href="admin-approvals.html" class="nav-link">Approvals</a>
+        <a href="admin-support.html" class="nav-link">Support</a>
+      </nav>
+      <div class="sidebar-bottom">
+        <a href="../login.html" class="nav-link logout">Logout</a>
+      </div>
+    </aside>
+
+    <main class="main-content">
+      <section class="page-head">
+        <h1>Support Requests</h1>
+        <p>View and manage student complaints and requests</p>
+      </section>
+
+      <div class="table-wrap">
+        <table class="scores">
+          <thead>
+            <tr>
+              <th>Student</th>
+              <th>Subject</th>
+              <th>Message</th>
+              <th>Date</th>
+              <th>Status</th>
+              <th class="r">Update</th>
+            </tr>
+          </thead>
+          <tbody id="ticketList">
+            <tr><td colspan="6" style="text-align:center;color:#999;padding:26px">Loading…</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </main>
+
+    <div id="toast"></div>
+
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="../../js/supabase-config.js"></script>
+    <script src="../../js/admin/admin-support.js"></script>
+    <script src="../../js/sidebar.js"></script>
+    <script src="../../js/menu.js"></script>
+    <script src="../../js/logout.js"></script>
+  </body>
+</html>
