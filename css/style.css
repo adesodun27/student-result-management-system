@@ -890,6 +890,14 @@ td.r {
   border-color: #2e8b57;
 }
 
+.status-select {
+  padding: 6px 8px;
+  border: 1px solid #ddd;
+  border-radius: 6px;
+  font-size: 13px;
+  cursor: pointer;
+}
+
 /* =========================
    RESPONSIVE
 ========================= */

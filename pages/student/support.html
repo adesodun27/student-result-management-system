@@ -1,0 +1,85 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Support · ACADEX</title>
+    <link rel="stylesheet" href="../../css/style.css" />
+  </head>
+  <body>
+    <aside class="sidebar">
+      <div class="sidebar-header">
+        <div class="logo"><h2>ACADEX</h2></div>
+        <button class="hamburger" id="hamburger" title="Menu" aria-label="Menu">☰</button>
+      </div>
+      <nav class="sidebar-nav">
+        <a href="student-dashboard.html" class="nav-link">Dashboard</a>
+        <a href="result.html" class="nav-link">My Results</a>
+        <a href="courses.html" class="nav-link">Courses</a>
+        <a href="support.html" class="nav-link">Support</a>
+        <a href="student-profile.html" class="nav-link">My Profile</a>
+      </nav>
+      <div class="sidebar-bottom">
+        <a href="../login.html" class="nav-link logout">Logout</a>
+      </div>
+    </aside>
+
+    <main class="main-content">
+      <section class="page-head">
+        <h1>Support</h1>
+        <p>Submit a complaint or request and track its status</p>
+      </section>
+
+      <!-- Submit form -->
+      <div class="form-card">
+        <h3>New Request</h3>
+        <div class="form-row">
+          <div class="form-field">
+            <label for="subject">Subject</label>
+            <input id="subject" type="text" placeholder="e.g. Missing result for CSC 401" />
+          </div>
+        </div>
+        <div class="form-row" style="margin-top:12px">
+          <div class="form-field" style="flex:1 1 100%">
+            <label for="message">Message</label>
+            <textarea id="message" rows="4" placeholder="Describe your issue..."
+              style="padding:9px 11px;border:1px solid #ddd;border-radius:7px;font-size:14px;font-family:Arial,sans-serif;resize:vertical;"></textarea>
+          </div>
+        </div>
+        <div style="margin-top:12px">
+          <button class="course-button" id="submitBtn">Submit Request</button>
+        </div>
+        <p class="form-error" id="formError"></p>
+      </div>
+
+      <!-- My tickets -->
+      <div class="section-title" style="margin-top:10px">
+        <h2>My Requests</h2>
+      </div>
+      <div class="table-wrap">
+        <table class="scores">
+          <thead>
+            <tr>
+              <th>Subject</th>
+              <th>Message</th>
+              <th>Date</th>
+              <th>Status</th>
+            </tr>
+          </thead>
+          <tbody id="ticketList">
+            <tr><td colspan="4" style="text-align:center;color:#999;padding:26px">Loading…</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </main>
+
+    <div id="toast"></div>
+
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="../../js/supabase-config.js"></script>
+    <script src="../../js/student/student-support.js"></script>
+    <script src="../../js/sidebar.js"></script>
+    <script src="../../js/menu.js"></script>
+    <script src="../../js/logout.js"></script>
+  </body>
+</html>

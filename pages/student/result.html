@@ -10,12 +10,15 @@
     <aside class="sidebar">
       <div class="sidebar-header">
         <div class="logo"><h2>ACADEX</h2></div>
-        <button class="hamburger" id="hamburger" title="Menu" aria-label="Menu">☰</button>
+        <button class="hamburger" id="hamburger" title="Menu" aria-label="Menu">
+          ☰
+        </button>
       </div>
       <nav class="sidebar-nav">
         <a href="student-dashboard.html" class="nav-link">Dashboard</a>
         <a href="result.html" class="nav-link">My Results</a>
         <a href="courses.html" class="nav-link">Courses</a>
+        <a href="support.html" class="nav-link">Support</a>
         <a href="student-profile.html" class="nav-link">My Profile</a>
       </nav>
       <div class="sidebar-bottom">
@@ -23,7 +26,7 @@
       </div>
     </aside>
 
-        <main class="main-content">
+    <main class="main-content">
       <section class="lecturer-header">
         <div class="welcome-text">
           <p class="welcome-message">My Results</p>
@@ -61,7 +64,13 @@
       <section class="courses-section">
         <div class="section-title">
           <h2>My Results</h2>
-          <button class="course-button" style="margin-left:auto" onclick="window.print()">Print Result</button>
+          <button
+            class="course-button"
+            style="margin-left: auto"
+            onclick="window.print()"
+          >
+            Print Result
+          </button>
         </div>
 
         <div class="table-wrap">
@@ -78,18 +87,25 @@
               </tr>
             </thead>
             <tbody id="resultsBody">
-              <tr><td colspan="7" style="text-align:center;color:#999;padding:26px">Loading…</td></tr>
+              <tr>
+                <td
+                  colspan="7"
+                  style="text-align: center; color: #999; padding: 26px"
+                >
+                  Loading…
+                </td>
+              </tr>
             </tbody>
           </table>
         </div>
       </section>
 
-      <p class="profile-note" style="text-align:center">
+      <p class="profile-note" style="text-align: center">
         Results displayed are subject to official approval by the institution.
       </p>
     </main>
 
-       <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="../../js/supabase-config.js"></script>
     <script src="../../js/student/student-results.js"></script>
     <script src="../../js/sidebar.js"></script>
