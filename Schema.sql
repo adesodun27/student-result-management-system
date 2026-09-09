@@ -583,4 +583,42 @@ REVOKE ALL ON FUNCTION get_student_results_with_summary(UUID) FROM PUBLIC;
 GRANT EXECUTE ON FUNCTION submit_result(INT) TO authenticated;
 GRANT EXECUTE ON FUNCTION approve_result(INT) TO authenticated;
 GRANT EXECUTE ON FUNCTION reopen_result(INT) TO authenticated;
-GRANT EXECUTE ON FUNCTION get_student_results_with_summary(UUID) TO authenticated;
+GRANT EXECUTE ON FUNCTION get_student_results_with_summary(UUID) TO authenticated;    
+
+-- 1. Admin Policy for Student Registrations
+DROP POLICY IF EXISTS "Admins insert registrations" ON student_registrations;
+CREATE POLICY "Admins insert registrations" ON student_registrations 
+FOR INSERT TO authenticated 
+WITH CHECK (public.get_user_role() = 'admin');
+
+-- 2. Updated Profile Protection Trigger Function
+CREATE OR REPLACE FUNCTION public.prevent_unauthorized_profile_updates()
+RETURNS TRIGGER AS $$
+BEGIN
+  -- Allow admins to change anything
+  IF public.get_user_role() = 'admin' THEN
+    RETURN NEW;
+  END IF;
+
+  -- Check if user is updating their own profile
+  IF auth.uid() = NEW.id THEN
+    -- Lock sensitive fields from user tampering
+    IF OLD.role IS DISTINCT FROM NEW.role OR
+       OLD.matric_number IS DISTINCT FROM NEW.matric_number OR
+       OLD.staff_id IS DISTINCT FROM NEW.staff_id OR
+       OLD.email IS DISTINCT FROM NEW.email THEN
+      RAISE EXCEPTION 'Unauthorized attempt to modify protected profile fields.';
+    END IF;
+
+    -- Allow changing must_change_initial_password only downwards (true -> false)
+    IF OLD.must_change_initial_password = false AND NEW.must_change_initial_password = true THEN
+      RAISE EXCEPTION 'Cannot re-enable initial password change requirement.';
+    END IF;
+
+    RETURN NEW;
+  END IF;
+
+  -- Default block for updates to other profiles
+  RAISE EXCEPTION 'Permission denied to update profile.';
+END;
+$$ LANGUAGE plpgsql SECURITY DEFINER;
