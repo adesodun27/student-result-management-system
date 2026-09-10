@@ -10,8 +10,9 @@ async function loadLecturers() {
     .order("full_name");
 
   if (error) {
+    console.error(error);
     $("#lecturerList").innerHTML =
-      `<tr><td colspan="5" style="text-align:center;color:#d9534f;padding:30px">Couldn't load: ${error.message}</td></tr>`;
+      `<tr><td colspan="5" style="text-align:center;color:#d9534f;padding:30px">Couldn't load lecturers. Please refresh the page.</td></tr>`;
     return;
   }
   if (!data || data.length === 0) {
@@ -46,7 +47,7 @@ async function addLecturer() {
   const err = $("#formError");
 
   if (!name || !staffId || !department) {
-    err.textContent = "Fill in name, staff ID, and department.";
+    err.textContent = "Please fill in name, staff ID, and department.";
     return;
   }
   err.textContent = "";
@@ -72,9 +73,28 @@ async function addLecturer() {
   btn.disabled = false;
 
   if (error) {
-    err.textContent =
-      "Couldn't add lecturer: " + (error.message || "unknown error");
     console.error(error);
+    const raw = (error.message || "").toLowerCase();
+    if (raw.includes("duplicate") || raw.includes("already")) {
+      err.textContent =
+        "This staff ID or email is already in use. Use a different one.";
+    } else if (
+      raw.includes("permission") ||
+      raw.includes("not allowed") ||
+      raw.includes("403")
+    ) {
+      err.textContent =
+        "You don't have permission to add lecturers. Please log in as an admin.";
+    } else if (
+      raw.includes("network") ||
+      raw.includes("fetch") ||
+      raw.includes("failed to")
+    ) {
+      err.textContent = "Network problem. Check your connection and try again.";
+    } else {
+      err.textContent =
+        "Couldn't add this lecturer. Please check the details and try again.";
+    }
     return;
   }
 
@@ -83,19 +103,27 @@ async function addLecturer() {
   if ($("#email")) $("#email").value = "";
   $("#department").value = "";
   await loadLecturers();
-  toast(`Lecturer added — login: ${staffId}, password: their surname`);
+  toast(`Lecturer added — login ID: ${staffId}, password: their surname`);
 }
 
 async function removeLecturer(id) {
   const { error } = await db.from("profiles").delete().eq("id", id);
   if (error) {
-    toast("Couldn't delete: " + error.message, true);
+    console.error(error);
+    const raw = (error.message || "").toLowerCase();
+    if (raw.includes("foreign key") || error.code === "23503") {
+      toast(
+        "Can't delete — this lecturer is still assigned to a course. Remove their course assignments first.",
+        true,
+      );
+    } else {
+      toast("Couldn't remove this lecturer. Please try again.", true);
+    }
     return;
   }
   await loadLecturers();
   toast("Lecturer removed");
 }
-
 let toastTimer;
 function toast(msg, isErr) {
   const t = $("#toast");

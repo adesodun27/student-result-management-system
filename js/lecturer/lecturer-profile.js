@@ -3,6 +3,11 @@
 
 const $ = (s) => document.querySelector(s);
 
+function set(id, val) {
+  const el = document.getElementById(id);
+  if (el) el.textContent = val;
+}
+
 async function loadProfile() {
   const {
     data: { user },
@@ -20,29 +25,29 @@ async function loadProfile() {
 
   if (error || !profile) {
     console.error(error);
+    // clear the placeholders so no fake data shows
+    set("lecturerName", "—");
+    set("fullName", "—");
+    set("staffId", "—");
+    set("department", "—");
+    set("email", "—");
+    set("avatar", "—");
     return;
   }
 
-  // initials for the avatar (e.g. "Dr. Adesodun Oladipo" → "AO")
   const initials = profile.full_name
-    .replace(/^(Dr|Prof|Mr|Mrs|Ms)\.?\s*/i, "") // drop title
+    .replace(/^(Dr|Prof|Mr|Mrs|Ms)\.?\s*/i, "")
     .split(" ")
     .map((w) => w[0])
     .slice(0, 2)
     .join("")
     .toUpperCase();
 
-  const set = (id, val) => {
-    const el = $("#" + id);
-    if (el) el.textContent = val;
-  };
-
   set("avatar", initials);
   set("lecturerName", profile.full_name);
   set("fullName", profile.full_name);
   set("staffId", profile.staff_id || "—");
   set("department", profile.department || "—");
-  // if you added an email row to the profile card, this fills it:
   set("email", profile.email || "—");
 }
 

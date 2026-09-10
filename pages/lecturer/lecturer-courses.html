@@ -15,6 +15,7 @@
       <nav class="sidebar-nav">
         <a href="lecturer-dashboard.html" class="nav-link">Dashboard</a>
         <a href="lecturer-courses.html" class="nav-link">Courses</a>
+        <a href="bulk-upload.html" class="nav-link">Upload Results</a>
         <a href="lecturer-profile.html" class="nav-link">Profile</a>
       </nav>
       <div class="sidebar-bottom">
@@ -23,9 +24,18 @@
     </aside>
 
     <main class="main-content">
-      <section class="page-head">
-        <h1>My Courses</h1>
-        <p>All courses assigned to you</p>
+            <section class="page-head" style="display:flex; align-items:flex-start; justify-content:space-between; flex-wrap:wrap; gap:12px;">
+        <div>
+          <h1>My Courses</h1>
+          <p>All courses assigned to you</p>
+        </div>
+        <div class="session-selector">
+          <select id="semesterFilter" title="Filter by semester">
+            <option value="all">All Semesters</option>
+            <option value="Harmattan">Harmattan</option>
+            <option value="Rain">Rain</option>
+          </select>
+        </div>
       </section>
 
       <section class="courses-section" id="coursesSection">

@@ -792,7 +792,7 @@ td.r {
 
 .form-row {
   display: flex;
-  align-items: flex-end;
+  align-items: flex-start;
   gap: 14px;
   flex-wrap: wrap;
 }
@@ -897,6 +897,26 @@ td.r {
   font-size: 13px;
   cursor: pointer;
 }
+
+.field-hint {
+  font-size: 11px;
+  color: #999;
+  font-style: italic;
+  margin-top: 4px;
+  display: block;
+}
+
+.form-row .course-button {
+  align-self: flex-start;
+  margin-top: 22px;
+}
+
+.assign-row .form-field,
+.assign-row .form-field.small {
+  flex: 1 1 0;
+  min-width: 0;
+}
+.assign-row select { width: 100%; }
 
 /* =========================
    RESPONSIVE
@@ -1026,7 +1046,7 @@ td.r {
     text-align: left;
   }
 
-    .welcome-message {
+  .welcome-message {
     font-size: 22px;
     font-weight: 700;
     margin-top: 6px;
@@ -1037,7 +1057,7 @@ td.r {
     margin-top: 4px;
   }
 
-    .table-wrap {
+  .table-wrap {
     overflow-x: auto;
     -webkit-overflow-scrolling: touch;
   }

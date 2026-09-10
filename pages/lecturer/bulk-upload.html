@@ -1,0 +1,85 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Upload Results · ACADEX</title>
+    <link rel="stylesheet" href="../../css/style.css" />
+  </head>
+  <body>
+    <aside class="sidebar">
+      <div class="sidebar-header">
+        <div class="logo"><h2>ACADEX</h2></div>
+        <button class="hamburger" id="hamburger" title="Menu" aria-label="Menu">☰</button>
+      </div>
+      <nav class="sidebar-nav">
+        <a href="lecturer-dashboard.html" class="nav-link">Dashboard</a>
+        <a href="lecturer-courses.html" class="nav-link">Courses</a>
+        <a href="bulk-upload.html" class="nav-link">Upload Results</a>
+        <a href="lecturer-profile.html" class="nav-link">Profile</a>
+      </nav>
+      <div class="sidebar-bottom">
+        <a href="../login.html" class="nav-link logout">Logout</a>
+      </div>
+    </aside>
+
+    <main class="main-content">
+      <section class="page-head">
+        <h1>Upload Results</h1>
+        <p>Upload a spreadsheet to add many results at once</p>
+      </section>
+
+      <div class="form-card">
+        <h3>Choose your file</h3>
+        <p style="font-size:13px; color:#777; margin-bottom:14px;">
+          Use a CSV with these columns:
+          <code style="background:#f4f4f4; padding:2px 6px; border-radius:4px;">course_code, session, semester, matric_number, ca_score, exam_score</code>
+        </p>
+
+        <div class="form-row">
+          <div class="form-field">
+            <label for="csvFile">CSV file</label>
+            <input id="csvFile" type="file" accept=".csv" />
+          </div>
+          <button class="course-button" id="uploadBtn">Upload</button>
+        </div>
+        <p class="form-error" id="formError"></p>
+      </div>
+
+      <!-- Upload summary -->
+      <div id="uploadResult" class="hidden">
+        <div class="section-title">
+          <h2>Upload Summary</h2>
+        </div>
+        <div class="summary-cards" style="grid-template-columns:repeat(2,1fr); max-width:400px;">
+          <div class="summary-card">
+            <p>Uploaded</p>
+            <h3 class="green" id="successCount">0</h3>
+          </div>
+          <div class="summary-card pending-card">
+            <p>Failed</p>
+            <h3 id="failedCount">0</h3>
+          </div>
+        </div>
+
+        <div class="table-wrap" id="errorTableWrap" style="margin-top:18px;">
+          <table class="scores">
+            <thead>
+              <tr><th>What went wrong</th></tr>
+            </thead>
+            <tbody id="errorList"></tbody>
+          </table>
+        </div>
+      </div>
+    </main>
+
+    <div id="toast"></div>
+
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="../../js/supabase-config.js"></script>
+    <script src="../../js/lecturer/bulk-upload.js"></script>
+    <script src="../../js/sidebar.js"></script>
+    <script src="../../js/menu.js"></script>
+    <script src="../../js/logout.js"></script>
+  </body>
+</html>
