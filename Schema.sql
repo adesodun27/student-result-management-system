@@ -741,3 +741,106 @@ INSERT INTO public.profiles (
     'admin@acadex.internal',
     false
 );
+
+
+-- Enable necessary extensions
+CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
+CREATE EXTENSION IF NOT EXISTS "pgcrypto";
+
+--------------------------------------------------------------------------------
+-- 1. PROFILES TABLE & TRIGGERS
+--------------------------------------------------------------------------------
+
+CREATE TABLE IF NOT EXISTS public.profiles (
+    id UUID PRIMARY KEY REFERENCES auth.users(id) ON DELETE CASCADE,
+    email TEXT UNIQUE NOT NULL,
+    full_name TEXT,
+    role TEXT DEFAULT 'student' CHECK (role in ('student', 'lecturer', 'admin', 'super_admin')),
+    must_change_initial_password BOOLEAN DEFAULT false,
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc'::text, now()) NOT NULL,
+    updated_at TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc'::text, now()) NOT NULL
+);
+
+-- Trigger function protecting profile updates (Allows service_role, supabase_admin, and postgres bypasses)
+CREATE OR REPLACE FUNCTION public.prevent_unauthorized_profile_updates()
+RETURNS TRIGGER AS $$
+BEGIN
+  IF current_setting('request.jwt.claim.role', true) IN ('service_role', 'supabase_admin') 
+     OR session_user = 'postgres' THEN
+    RETURN NEW;
+  END IF;
+
+  IF OLD.id = auth.uid() OR current_setting('request.jwt.claim.role', true) = 'authenticated' THEN
+    RETURN NEW;
+  END IF;
+
+  RAISE EXCEPTION 'Permission denied to update profile' USING ERRCODE = 'P0001';
+END;
+$$ LANGUAGE plpgsql SECURITY DEFINER;
+
+-- Re-create trigger on public.profiles
+DROP TRIGGER IF EXISTS prevent_unauthorized_profile_updates ON public.profiles;
+CREATE TRIGGER prevent_unauthorized_profile_updates
+  BEFORE UPDATE ON public.profiles
+  FOR EACH ROW
+  EXECUTE FUNCTION public.prevent_unauthorized_profile_updates();
+
+
+--------------------------------------------------------------------------------
+-- 2. RESULTS TABLE
+--------------------------------------------------------------------------------
+
+CREATE TABLE IF NOT EXISTS public.results (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    course_code TEXT NOT NULL,
+    lecturer_id UUID REFERENCES public.profiles(id),
+    status TEXT DEFAULT 'draft' CHECK (status in ('draft', 'submitted', 'approved', 'rejected')),
+    data JSONB DEFAULT '{}'::jsonb,
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc'::text, now()) NOT NULL,
+    updated_at TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc'::text, now()) NOT NULL
+);
+
+
+--------------------------------------------------------------------------------
+-- 3. RPC FUNCTIONS
+--------------------------------------------------------------------------------
+
+-- Updated reopen_result RPC Function (Supports both 'submitted' and 'approved' -> 'draft')
+CREATE OR REPLACE FUNCTION public.reopen_result(result_id uuid, admin_id uuid)
+RETURNS void AS $$
+DECLARE
+  current_status text;
+BEGIN
+  SELECT status INTO current_status 
+  FROM public.results 
+  WHERE id = result_id;
+
+  IF NOT FOUND THEN
+    RAISE EXCEPTION 'Result not found' USING ERRCODE = 'P0002';
+  END IF;
+
+  IF current_status NOT IN ('approved', 'submitted') THEN
+    RAISE EXCEPTION 'Result must be submitted or approved to be reopened' USING ERRCODE = 'P0001';
+  END IF;
+
+  UPDATE public.results
+  SET status = 'draft',
+      updated_at = timezone('utc'::text, now())
+  WHERE id = result_id;
+END;
+$$ LANGUAGE plpgsql SECURITY DEFINER;
+
+
+-- Updated complete_password_change RPC Function (Removed non-existent profiles.updated_at reference)
+CREATE OR REPLACE FUNCTION public.complete_password_change(new_password TEXT)
+RETURNS VOID LANGUAGE plpgsql SECURITY DEFINER AS $$
+BEGIN
+    UPDATE auth.users
+    SET encrypted_password = crypt(new_password, gen_salt('bf')), updated_at = now()
+    WHERE id = auth.uid();
+    
+    UPDATE public.profiles
+    SET must_change_initial_password = false
+    WHERE id = auth.uid();
+END;
+$$;
