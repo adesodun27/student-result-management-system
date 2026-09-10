@@ -481,6 +481,89 @@ BEGIN
 
     caller_role := public.get_user_role();
 
+-- Enable vector extension
+create extension if not exists vector;
+
+-- 1. Create Knowledge Base table for result policies and FAQs
+create table if not exists public.knowledge_base (
+    id uuid primary key default gen_random_uuid(),
+    title text not null,
+    content text not null,
+    category text default 'Results',
+    created_at timestamptz default now()
+);
+
+-- 2. Create Support Tickets table
+create table if not exists public.support_tickets (
+    id uuid primary key default gen_random_uuid(),
+    student_id uuid references public.profiles(id) on delete cascade,
+    subject text not null,
+    message text not null,
+    status text default 'open', -- 'open', 'ai_resolved', 'escalated'
+    ai_response text,
+    created_at timestamptz default now()
+);
+
+-- 3. Enable Row Level Security (RLS)
+alter table public.knowledge_base enable row level security;
+alter table public.support_tickets enable row level security;
+
+-- 4. Clean up existing policies to prevent duplication errors
+drop policy if exists "Anyone can read knowledge base" on public.knowledge_base;
+drop policy if exists "Students can insert their own tickets" on public.support_tickets;
+drop policy if exists "Students can view their own tickets" on public.support_tickets;
+drop policy if exists "Admins have full access to tickets" on public.support_tickets;
+
+-- 5. Set up RLS Policies
+create policy "Anyone can read knowledge base" 
+    on public.knowledge_base 
+    for select 
+    to authenticated 
+    using (true);
+
+create policy "Students can insert their own tickets" 
+    on public.support_tickets 
+    for insert 
+    to authenticated 
+    with check (auth.uid() = student_id);
+
+create policy "Students can view their own tickets" 
+    on public.support_tickets 
+    for select 
+    to authenticated 
+    using (auth.uid() = student_id);
+
+create policy "Admins have full access to tickets" 
+    on public.support_tickets 
+    for all 
+    to authenticated 
+    using (public.get_user_role() = 'admin');
+
+-- 6. Reset and Seed Knowledge Base with Result-Specific FAQs
+truncate table public.knowledge_base;
+
+insert into public.knowledge_base (title, content, category) values
+(
+    'Missing CA Score', 
+    'If your Continuous Assessment (CA) score is missing from your result portal, first verify with your course lecturer to ensure your attendance and test scripts were recorded. If confirmed, submit a ticket here with your course code and matric number for admin verification.', 
+    'Results'
+),
+(
+    'Incorrect GPA Calculation', 
+    'GPA is computed using total credit units and grade points earned per semester. If you suspect an arithmetic discrepancy in your cumulative GPA, note the specific course code and grade, and file a ticket for academic audit.', 
+    'Results'
+),
+(
+    'Pending Grade (Incomplete / IC)', 
+    'An "IC" grade indicates an incomplete status, usually due to a missing exam component or pending departmental Senate approval. These are typically updated automatically once results are fully collated and approved.', 
+    'Results'
+),
+(
+    'Carryover Course Registration', 
+    'Failed courses (carryovers) must be re-registered during the current semester registration window before the portal permits grade replacement tracking.', 
+    'Results'
+);
+
     IF auth.uid() <> p_student_id AND caller_role = 'student' THEN
         RAISE EXCEPTION 'Unauthorized access to student results.';
     END IF;
