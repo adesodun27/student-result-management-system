@@ -918,6 +918,10 @@ td.r {
 }
 .assign-row select { width: 100%; }
 
+.status-badge {
+  white-space: nowrap;
+}
+
 /* =========================
    RESPONSIVE
 ========================= */

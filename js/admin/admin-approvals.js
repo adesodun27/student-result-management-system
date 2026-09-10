@@ -192,14 +192,22 @@ async function approve() {
 
 async function reopenOrReturn() {
   if (!current) return;
+
+  const {
+    data: { user },
+  } = await db.auth.getUser();
+
   let failed = 0;
+  let reason = "";
   for (const r of current.rows) {
     const { error } = await db.rpc("reopen_result", {
-      p_result_id: r.result_id,
+      result_id: r.result_id,
+      admin_id: user.id,
     });
     if (error) {
       console.error(error);
       failed++;
+      if (!reason) reason = error.message || "";
     }
   }
   const msg =
@@ -207,9 +215,7 @@ async function reopenOrReturn() {
       ? `${current.code} returned to lecturer for correction`
       : `${current.code} reopened — lecturer can now edit`;
   toast(
-    failed
-      ? `Something went wrong with ${failed} result(s) — please try again`
-      : msg,
+    failed ? reason || `Couldn't update ${failed} result(s).` : msg,
     failed > 0,
   );
   backToList();

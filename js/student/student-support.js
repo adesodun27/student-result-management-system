@@ -89,17 +89,17 @@ async function submitTicket() {
   const btn = $("#submitBtn");
   btn.disabled = true;
 
-  const { error } = await db.from("support_tickets").insert({
-    student_id: user.id,
-    subject,
-    message,
-  });
-
-  btn.disabled = false;
+  // insert the ticket and get the created row back
+  const { data: ticket, error } = await db
+    .from("support_tickets")
+    .insert({ student_id: user.id, subject, message })
+    .select()
+    .single();
 
   if (error) {
     console.error(error);
     err.textContent = "Couldn't submit your request. Please try again.";
+    btn.disabled = false;
     return;
   }
 
@@ -107,8 +107,20 @@ async function submitTicket() {
   $("#message").value = "";
   toast("Request submitted — checking for an instant answer…");
 
-  // reload after a short delay so the AI response has time to land
+  // ask the AI to answer this ticket right away
+  try {
+    await db.functions.invoke("support-ai", { body: { record: ticket } });
+  } catch (e) {
+    console.error("AI function error:", e);
+    // not fatal — the ticket is saved either way
+  }
+
+  btn.disabled = false;
+
+  // poll a few times so the AI response has time to land
+  loadTickets();
   setTimeout(loadTickets, 2500);
+  setTimeout(loadTickets, 5000);
 }
 
 let toastTimer;

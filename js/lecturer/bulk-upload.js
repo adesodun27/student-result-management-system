@@ -32,7 +32,11 @@ async function uploadCsv() {
     if (!res.ok) throw new Error(`Server responded ${res.status}`);
 
     const data = await res.json(); // { success_count, failed_count, errors }
-    showResult(data);
+
+    const text = await file.text(); // read the CSV we just sent
+    const rows = parseCsv(text); // parse into a table
+    showResult(rows);
+
     toast(`Done — ${data.success_count} added, ${data.failed_count} failed`);
   } catch (e) {
     console.error(e);
@@ -44,21 +48,37 @@ async function uploadCsv() {
   }
 }
 
-function showResult(data) {
-  $("#uploadResult").classList.remove("hidden");
-  $("#successCount").textContent = data.success_count ?? 0;
-  $("#failedCount").textContent = data.failed_count ?? 0;
+function parseCsv(text) {
+  return text
+    .trim()
+    .split(/\r?\n/)
+    .filter((line) => line.trim() !== "")
+    .map((line) => line.split(",").map((c) => c.trim()));
+}
 
-  const errors = data.errors || [];
+function showResult(rows) {
+  $("#uploadResult").classList.remove("hidden");
+
   const wrap = $("#errorTableWrap");
-  if (errors.length === 0) {
-    wrap.classList.add("hidden");
-  } else {
-    wrap.classList.remove("hidden");
-    $("#errorList").innerHTML = errors
-      .map((e) => `<tr><td style="color:#d9534f;">${e}</td></tr>`)
-      .join("");
+  wrap.classList.remove("hidden");
+
+  if (!rows || rows.length === 0) {
+    wrap.innerHTML = `<p style="color:#999;">No rows found in file.</p>`;
+    return;
   }
+
+  const [header, ...body] = rows;
+
+  const thead = `<tr>${header.map((h) => `<th>${h}</th>`).join("")}</tr>`;
+  const tbody = body
+    .map((r) => `<tr>${r.map((c) => `<td>${c}</td>`).join("")}</tr>`)
+    .join("");
+
+  wrap.innerHTML = `
+    <table class="scores">
+      <thead>${thead}</thead>
+      <tbody>${tbody}</tbody>
+    </table>`;
 }
 
 let toastTimer;
