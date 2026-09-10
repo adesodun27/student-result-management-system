@@ -10,7 +10,9 @@
     <aside class="sidebar">
       <div class="sidebar-header">
         <div class="logo"><h2>ACADEX</h2></div>
-        <button class="hamburger" id="hamburger" title="Menu" aria-label="Menu">☰</button>
+        <button class="hamburger" id="hamburger" title="Menu" aria-label="Menu">
+          ☰
+        </button>
       </div>
       <nav class="sidebar-nav">
         <a href="lecturer-dashboard.html" class="nav-link">Dashboard</a>
@@ -31,9 +33,18 @@
 
       <div class="form-card">
         <h3>Choose your file</h3>
-        <p style="font-size:13px; color:#777; margin-bottom:14px;">
+        <p style="font-size: 13px; color: #777; margin-bottom: 14px">
           Use a CSV with these columns:
-          <code style="background:#f4f4f4; padding:2px 6px; border-radius:4px;">course_code, session, semester, matric_number, ca_score, exam_score</code>
+          <code
+            style="background: #f4f4f4; padding: 2px 6px; border-radius: 4px"
+            >course_code, session, semester, matric_number, ca_score,
+            exam_score</code
+          >
+          <br />
+          <span style="color: #999"
+            >semester must be exactly <b>Harmattan</b> or <b>Rain</b> · session
+            like <b>2024/2025</b></span
+          >
         </p>
 
         <div class="form-row">
@@ -48,24 +59,19 @@
 
       <!-- Upload summary -->
       <div id="uploadResult" class="hidden">
-        <div class="section-title">
-          <h2>Upload Summary</h2>
-        </div>
-        <div class="summary-cards" style="grid-template-columns:repeat(2,1fr); max-width:400px;">
-          <div class="summary-card">
-            <p>Uploaded</p>
-            <h3 class="green" id="successCount">0</h3>
-          </div>
-          <div class="summary-card pending-card">
-            <p>Failed</p>
-            <h3 id="failedCount">0</h3>
-          </div>
-        </div>
+  <div class="section-title">
+    <h2>Upload Summary</h2>
+  </div>
 
-        <div class="table-wrap" id="errorTableWrap" style="margin-top:18px;">
+  <div class="table-wrap" id="errorTableWrap" style="margin-top: 18px"></div>
+</div>
+
+        <div class="table-wrap" id="errorTableWrap" style="margin-top: 18px">
           <table class="scores">
             <thead>
-              <tr><th>What went wrong</th></tr>
+              <tr>
+                <th>Upload Details</th>
+              </tr>
             </thead>
             <tbody id="errorList"></tbody>
           </table>
