@@ -62,15 +62,19 @@ async function loadDashboard() {
   const courses = (data && data.courses) || [];
   const summary = (data && data.summary) || { cgpa: 0, completed_units: 0 };
   const approved = courses.filter((c) => c.status === "approved");
+  const hasResults = approved.length > 0;
 
-  set("cardGpa", summary.cgpa ?? "—");
+  set("cardGpa", hasResults ? (summary.cgpa ?? "—") : "—");
   set("cardCompleted", approved.length);
-  set("cardStatus", classOfDegree(summary.cgpa));
+  set(
+    "cardStatus",
+    hasResults ? classOfDegree(summary.cgpa) : "Not yet available",
+  );
 
-  set("ovCgpa", (summary.cgpa ?? 0) + " / 5.00");
-  set("ovUnits", summary.completed_units ?? "—");
+  set("ovCgpa", hasResults ? (summary.cgpa ?? 0) + " / 5.00" : "— / 5.00");
+  set("ovUnits", hasResults ? (summary.completed_units ?? "—") : "—");
 
-  if (approved.length === 0) {
+  if (!hasResults) {
     $("#recentResults").innerHTML =
       `<tr><td colspan="6" style="text-align:center;color:#999;padding:26px">No approved results yet.</td></tr>`;
     return;
