@@ -706,56 +706,38 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql SECURITY DEFINER;
 
--- 1. Ensure pgcrypto extension is available for password hashing
+-- Clean up any existing admin remnants
+DELETE FROM public.profiles WHERE email IN ('admin@acadex.com', 'admin@acadex.internal') OR full_name = 'admin';
+DELETE FROM auth.users WHERE email IN ('admin@acadex.com', 'admin@acadex.internal');
+
+-- Make sure pgcrypto is available
 CREATE EXTENSION IF NOT EXISTS pgcrypto;
 
--- 2. Insert the new admin user into Supabase Auth and link their profile
-DO $$
-DECLARE
-    v_user_id UUID := gen_random_uuid();
-    v_email TEXT := 'admin@acadex.com';
-    v_password TEXT := 'admin123';
-    v_full_name TEXT := 'admin';
-BEGIN
-    -- Insert into Supabase Auth table
-    INSERT INTO auth.users (
-        instance_id,
-        id,
-        aud,
-        role,
-        email,
-        encrypted_password,
-        email_confirmed_at,
-        raw_app_meta_data,
-        raw_user_meta_data,
-        created_at,
-        updated_at
-    ) VALUES (
-        '00000000-0000-0000-0000-000000000000',
-        v_user_id,
-        'authenticated',
-        'authenticated',
-        v_email,
-        crypt(v_password, gen_salt('bf')),
-        now(),
-        '{"provider":"email","providers":["email"]}',
-        '{}',
-        now(),
-        now()
-    );
+-- Create the admin auth user
+INSERT INTO auth.users (
+    instance_id, id, aud, role, email, encrypted_password,
+    email_confirmed_at, raw_app_meta_data, raw_user_meta_data, created_at, updated_at
+) VALUES (
+    '00000000-0000-0000-0000-000000000000',
+    '77777777-7777-7777-7777-777777777777',
+    'authenticated',
+    'authenticated',
+    'admin@acadex.internal',
+    crypt('admin123', gen_salt('bf')),
+    now(),
+    '{"provider":"email","providers":["email"]}',
+    '{}',
+    now(),
+    now()
+);
 
-    -- Insert matching record into public.profiles with the admin role and username/full_name set to admin
-    INSERT INTO public.profiles (
-        id,
-        full_name,
-        role,
-        email,
-        must_change_initial_password
-    ) VALUES (
-        v_user_id,
-        v_full_name,
-        'admin',
-        v_email,
-        true
-    );
-END $$;
+-- Create the matching profile
+INSERT INTO public.profiles (
+    id, full_name, role, email, must_change_initial_password
+) VALUES (
+    '77777777-7777-7777-7777-777777777777',
+    'admin',
+    'admin',
+    'admin@acadex.internal',
+    false
+);
