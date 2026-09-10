@@ -1,4 +1,6 @@
-/* CHANGE PASSWORD — first-login flow. */
+/* CHANGE PASSWORD — first-login flow.
+   Uses the complete_password_change() DB function, which updates the
+   password AND clears the must-change flag in one secure step. */
 
 const form = document.querySelector("#changeForm");
 const newPass = document.querySelector("#newPassword");
@@ -37,26 +39,19 @@ form.addEventListener("submit", async (e) => {
   const btn = form.querySelector(".submit-btn");
   btn.disabled = true;
 
-  // 1. update the auth password
-  const { error: pwError } = await db.auth.updateUser({ password: p1 });
-  if (pwError) {
-    console.error(pwError);
+  // call the DB function — updates password AND clears the must-change flag
+  const { error } = await db.rpc("complete_password_change", {
+    new_password: p1,
+  });
+
+  if (error) {
+    console.error(error);
     btn.disabled = false;
     showError("Couldn't update your password. Please try again.");
     return;
   }
 
-  // 2. clear the must-change flag on their profile
-  const { error: flagError } = await db
-    .from("profiles")
-    .update({ must_change_initial_password: false })
-    .eq("id", user.id);
-
-  if (flagError) {
-    console.error(flagError); // password changed, flag didn't — logged for debugging
-  }
-
-  // 3. redirect by role
+  // flag is cleared — now redirect by role
   const { data: profile } = await db
     .from("profiles")
     .select("role")
