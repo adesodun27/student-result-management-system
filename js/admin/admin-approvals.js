@@ -12,7 +12,6 @@ function gradeClass(g) {
 }
 
 async function loadResults() {
-  // load results in the current mode (submitted or approved)
   const { data, error } = await db
     .from("results")
     .select(
@@ -30,7 +29,7 @@ async function loadResults() {
   if (error) {
     console.error(error);
     $("#submittedList").innerHTML =
-      `<tr><td colspan="6" style="text-align:center;color:#d9534f;padding:30px">Couldn't load: ${error.message}</td></tr>`;
+      `<tr><td colspan="6" style="text-align:center;color:#d9534f;padding:30px">Couldn't load results. Please refresh the page.</td></tr>`;
     return;
   }
 
@@ -140,7 +139,6 @@ function openDetail(i) {
     )
     .join("");
 
-  // show the right buttons for the mode
   const approveBtn = $("#approveBtn");
   const returnBtn = $("#returnBtn");
   if (mode === "submitted") {
@@ -151,7 +149,6 @@ function openDetail(i) {
     returnBtn.style.display = "";
     returnBtn.textContent = "Return to Lecturer";
   } else {
-    // approved mode — only reopen
     $("#actionHint").textContent =
       `These results are published. Reopen to let the lecturer edit them.`;
     approveBtn.style.display = "none";
@@ -185,7 +182,7 @@ async function approve() {
   }
   toast(
     failed
-      ? `Approved with ${failed} error(s)`
+      ? `Something went wrong with ${failed} result(s) — please try again`
       : `${current.code} approved — published to students`,
     failed > 0,
   );
@@ -209,7 +206,12 @@ async function reopenOrReturn() {
     mode === "submitted"
       ? `${current.code} returned to lecturer for correction`
       : `${current.code} reopened — lecturer can now edit`;
-  toast(failed ? `Done with ${failed} error(s)` : msg, failed > 0);
+  toast(
+    failed
+      ? `Something went wrong with ${failed} result(s) — please try again`
+      : msg,
+    failed > 0,
+  );
   backToList();
   await loadResults();
 }

@@ -1,8 +1,8 @@
-/* STUDENT COURSES — wired to Supabase.
-   Reads the student's registrations (+ course details), shows whether each
-   has an approved result yet. */
+/* STUDENT COURSES — registrations + result status, filterable by semester. */
 
 const $ = (s) => document.querySelector(s);
+
+let allRegs = []; // every registration; filtered for display
 
 async function loadCourses() {
   const {
@@ -15,7 +15,6 @@ async function loadCourses() {
     return;
   }
 
-  // registrations + course details, and any result on each
   const { data: regs, error } = await db
     .from("student_registrations")
     .select(
@@ -29,29 +28,48 @@ async function loadCourses() {
 
   if (error) {
     console.error(error);
-    section.innerHTML = `<div class="course-card"><div class="course-info"><p>Couldn't load courses: ${error.message}</p></div></div>`;
+    section.innerHTML = `<div class="course-card"><div class="course-info"><p>Couldn't load your courses. Please refresh the page.</p></div></div>`;
     return;
   }
 
   if (!regs || regs.length === 0) {
-    $("#unitCount").textContent = "0 units registered";
-    $("#unitLabel").textContent = "— you have no registered courses yet.";
+    $("#unitCount").textContent = "0 units";
+    $("#unitLabel").textContent =
+      "registered — you have no registered courses yet.";
     section.innerHTML = `<div class="course-card"><div class="course-info"><p>No registered courses yet.</p></div></div>`;
     return;
   }
 
-  // total units
-  const totalUnits = regs.reduce(
+  allRegs = regs;
+  applyFilter();
+}
+
+function applyFilter() {
+  const filter = $("#semesterFilter").value; // "all" | "Harmattan" | "Rain"
+  const list =
+    filter === "all" ? allRegs : allRegs.filter((r) => r.semester === filter);
+
+  const section = $("#coursesSection");
+
+  // total units for the filtered view
+  const totalUnits = list.reduce(
     (sum, r) => sum + (r.courses?.credit_units || 0),
     0,
   );
-  $("#unitCount").textContent = `${totalUnits} units registered`;
-  $("#unitLabel").textContent = "— your course registration for this session.";
+  $("#unitCount").textContent = `${totalUnits} units`;
+  $("#unitLabel").textContent =
+    filter === "all"
+      ? "registered across all semesters."
+      : `registered for ${filter} semester.`;
 
-  section.innerHTML = regs
+  if (list.length === 0) {
+    section.innerHTML = `<div class="course-card"><div class="course-info"><p>No registered courses for this semester.</p></div></div>`;
+    return;
+  }
+
+  section.innerHTML = list
     .map((r) => {
       const c = r.courses;
-      // results comes back as an array (0 or 1 row per registration)
       const result = Array.isArray(r.results) ? r.results[0] : r.results;
       const status = result ? result.status : null;
 
@@ -90,4 +108,5 @@ async function loadCourses() {
     .join("");
 }
 
+$("#semesterFilter").addEventListener("change", applyFilter);
 loadCourses();

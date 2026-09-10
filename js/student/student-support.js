@@ -37,7 +37,7 @@ async function loadTickets() {
   if (error) {
     console.error(error);
     $("#ticketList").innerHTML =
-      `<tr><td colspan="4" style="text-align:center;color:#d9534f;padding:26px">Couldn't load: ${error.message}</td></tr>`;
+      `<tr><td colspan="4" style="text-align:center;color:#d9534f;padding:26px">Couldn't load your requests. Please refresh the page.</td></tr>`;
     return;
   }
 
@@ -66,7 +66,7 @@ async function submitTicket() {
   const err = $("#formError");
 
   if (!subject || !message) {
-    err.textContent = "Fill in both subject and message.";
+    err.textContent = "Please fill in both the subject and message.";
     return;
   }
   err.textContent = "";
@@ -75,7 +75,7 @@ async function submitTicket() {
     data: { user },
   } = await db.auth.getUser();
   if (!user) {
-    err.textContent = "Please log in.";
+    err.textContent = "Please log in first.";
     return;
   }
 
@@ -91,8 +91,8 @@ async function submitTicket() {
   btn.disabled = false;
 
   if (error) {
-    err.textContent = "Couldn't submit: " + error.message;
     console.error(error);
+    err.textContent = "Couldn't submit your request. Please try again.";
     return;
   }
 

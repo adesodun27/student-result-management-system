@@ -1,6 +1,4 @@
-/* CHANGE PASSWORD — first-login flow.
-   Updates the auth password + clears must_change_initial_password,
-   then sends the user to their dashboard. */
+/* CHANGE PASSWORD — first-login flow. */
 
 const form = document.querySelector("#changeForm");
 const newPass = document.querySelector("#newPassword");
@@ -15,12 +13,11 @@ form.addEventListener("submit", async (e) => {
   e.preventDefault();
   showError("");
 
-  // must be logged in to change password
   const {
     data: { user },
   } = await db.auth.getUser();
   if (!user) {
-    showError("Session expired. Please log in again.");
+    showError("Your session expired. Please log in again.");
     setTimeout(() => (location.href = "login.html"), 1500);
     return;
   }
@@ -33,7 +30,7 @@ form.addEventListener("submit", async (e) => {
     return;
   }
   if (p1 !== p2) {
-    showError("Passwords don't match.");
+    showError("The two passwords don't match.");
     return;
   }
 
@@ -43,8 +40,9 @@ form.addEventListener("submit", async (e) => {
   // 1. update the auth password
   const { error: pwError } = await db.auth.updateUser({ password: p1 });
   if (pwError) {
+    console.error(pwError);
     btn.disabled = false;
-    showError("Couldn't update password: " + pwError.message);
+    showError("Couldn't update your password. Please try again.");
     return;
   }
 
@@ -55,11 +53,10 @@ form.addEventListener("submit", async (e) => {
     .eq("id", user.id);
 
   if (flagError) {
-    // password changed but flag didn't — not fatal, log it
-    console.error(flagError);
+    console.error(flagError); // password changed, flag didn't — logged for debugging
   }
 
-  // 3. look up role → go to the right dashboard
+  // 3. redirect by role
   const { data: profile } = await db
     .from("profiles")
     .select("role")

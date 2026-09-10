@@ -7,10 +7,12 @@
     <link rel="stylesheet" href="../../css/style.css" />
   </head>
   <body>
-        <aside class="sidebar">
+    <aside class="sidebar">
       <div class="sidebar-header">
         <div class="logo"><h2>ACADEX</h2></div>
-        <button class="hamburger" id="hamburger" title="Menu" aria-label="Menu">☰</button>
+        <button class="hamburger" id="hamburger" title="Menu" aria-label="Menu">
+          ☰
+        </button>
       </div>
       <nav class="sidebar-nav">
         <a href="admin-dashboard.html" class="nav-link">Dashboard</a>
@@ -38,7 +40,8 @@
         <div class="form-row">
           <div class="form-field">
             <label for="name">Full Name</label>
-            <input id="name" type="text" placeholder="e.g. Firstname Surname" />
+            <input id="name" type="text" placeholder="Smith John" />
+            <small class="field-hint">Enter first name, then surname</small>
           </div>
           <div class="form-field">
             <label for="matric">Matric Number</label>
@@ -46,12 +49,20 @@
           </div>
           <div class="form-field">
             <label for="email">Email</label>
-            <input id="email" type="email" placeholder="e.g. student@acadex.edu" />
+            <input
+              id="email"
+              type="email"
+              placeholder="e.g. student@acadex.edu"
+            />
           </div>
           <div class="form-field">
-  <label for="department">Department</label>
-  <input id="department" type="text" placeholder="e.g. Computer Science" />
-</div>
+            <label for="department">Department</label>
+            <input
+              id="department"
+              type="text"
+              placeholder="e.g. Computer Science"
+            />
+          </div>
           <div class="form-field small">
             <label for="level">Level</label>
             <select id="level" title="Select level">
@@ -88,7 +99,7 @@
 
     <div id="toast"></div>
 
-     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="../../js/supabase-config.js"></script>
     <script src="../../js/admin/admin-students.js"></script>
     <script src="../../js/sidebar.js"></script>

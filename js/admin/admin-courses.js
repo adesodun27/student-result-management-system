@@ -10,18 +10,15 @@ async function loadCourses() {
     .order("course_code", { ascending: true });
 
   if (error) {
+    console.error(error);
     $("#courseList").innerHTML =
-      `<tr><td colspan="6" style="text-align:center;color:#d9534f;padding:30px">
-        Couldn't load courses: ${error.message}
-      </td></tr>`;
+      `<tr><td colspan="6" style="text-align:center;color:#d9534f;padding:30px">Couldn't load courses. Please refresh the page.</td></tr>`;
     return;
   }
 
   if (!data || data.length === 0) {
     $("#courseList").innerHTML =
-      `<tr><td colspan="6" style="text-align:center;color:#999;padding:30px">
-        No courses yet. Add one above.
-      </td></tr>`;
+      `<tr><td colspan="6" style="text-align:center;color:#999;padding:30px">No courses yet. Add one above.</td></tr>`;
     return;
   }
 
@@ -55,16 +52,19 @@ async function addCourse() {
   const err = $("#formError");
 
   if (!code || !title || !unit || !level || !department) {
-    err.textContent = "Fill in all fields.";
+    err.textContent = "Please fill in all fields.";
     return;
   }
 
-    if (Number(unit) < 1 || Number(unit) > 10) {
+  if (Number(unit) < 1 || Number(unit) > 10) {
     err.textContent = "Units must be between 1 and 10.";
     return;
   }
-  
+
   err.textContent = "";
+
+  const btn = $("#addBtn");
+  btn.disabled = true;
 
   const { error } = await db.from("courses").insert({
     course_code: code,
@@ -74,10 +74,26 @@ async function addCourse() {
     department: department,
   });
 
+  btn.disabled = false;
+
   if (error) {
-    err.textContent = error.message.includes("duplicate")
-      ? "That course code already exists."
-      : "Couldn't add course: " + error.message;
+    console.error(error);
+    const raw = (error.message || "").toLowerCase();
+    if (raw.includes("duplicate") || raw.includes("already")) {
+      err.textContent = "That course code already exists. Use a different one.";
+    } else if (raw.includes("permission") || raw.includes("403")) {
+      err.textContent =
+        "You don't have permission to add courses. Please log in as an admin.";
+    } else if (
+      raw.includes("network") ||
+      raw.includes("fetch") ||
+      raw.includes("failed to")
+    ) {
+      err.textContent = "Network problem. Check your connection and try again.";
+    } else {
+      err.textContent =
+        "Couldn't add this course. Please check the details and try again.";
+    }
     return;
   }
 
@@ -93,7 +109,8 @@ async function addCourse() {
 async function removeCourse(id) {
   const { error } = await db.from("courses").delete().eq("id", id);
   if (error) {
-    toast("Couldn't delete: " + error.message, true);
+    console.error(error);
+    toast("Couldn't delete this course. Please try again.", true);
     return;
   }
   await loadCourses();

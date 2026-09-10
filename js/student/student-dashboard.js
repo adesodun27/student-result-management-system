@@ -24,7 +24,9 @@ function set(id, value) {
 }
 
 async function loadDashboard() {
-  const { data: { user } } = await db.auth.getUser();
+  const {
+    data: { user },
+  } = await db.auth.getUser();
   if (!user) {
     $("#recentResults").innerHTML =
       `<tr><td colspan="6" style="text-align:center;color:#999;padding:26px">Please log in.</td></tr>`;
@@ -39,7 +41,10 @@ async function loadDashboard() {
 
   if (profile) {
     set("welcomeName", `Welcome, ${profile.full_name} 👋`);
-    set("studentInfo", `Matric No · ${profile.matric_number || "—"} · ${profile.department || "—"}`);
+    set(
+      "studentInfo",
+      `Matric No · ${profile.matric_number || "—"} · ${profile.department || "—"}`,
+    );
     set("cardLevel", profile.level || "—");
   }
 
@@ -50,7 +55,7 @@ async function loadDashboard() {
   if (error) {
     console.error(error);
     $("#recentResults").innerHTML =
-      `<tr><td colspan="6" style="text-align:center;color:#d9534f;padding:26px">Couldn't load results: ${error.message}</td></tr>`;
+      `<tr><td colspan="6" style="text-align:center;color:#d9534f;padding:26px">Couldn't load your results. Please refresh the page.</td></tr>`;
     return;
   }
 
@@ -58,28 +63,28 @@ async function loadDashboard() {
   const summary = (data && data.summary) || { cgpa: 0, completed_units: 0 };
   const approved = courses.filter((c) => c.status === "approved");
 
-  // summary cards
   set("cardGpa", summary.cgpa ?? "—");
   set("cardCompleted", approved.length);
   set("cardStatus", classOfDegree(summary.cgpa));
 
-  // academic overview
   set("ovCgpa", (summary.cgpa ?? 0) + " / 5.00");
   set("ovUnits", summary.completed_units ?? "—");
 
-  // recent results
   if (approved.length === 0) {
     $("#recentResults").innerHTML =
       `<tr><td colspan="6" style="text-align:center;color:#999;padding:26px">No approved results yet.</td></tr>`;
     return;
   }
 
-  $("#recentResults").innerHTML = approved.slice(0, 5).map((c) => {
-    const status = courseStatus(c.total_score);
-    const badge = status === "Passed"
-      ? `<span class="status-badge status-approved">Passed</span>`
-      : `<span class="status-badge status-not-started">Carry Over</span>`;
-    return `
+  $("#recentResults").innerHTML = approved
+    .slice(0, 5)
+    .map((c) => {
+      const status = courseStatus(c.total_score);
+      const badge =
+        status === "Passed"
+          ? `<span class="status-badge status-approved">Passed</span>`
+          : `<span class="status-badge status-not-started">Carry Over</span>`;
+      return `
       <tr>
         <td class="name">${c.course_code}</td>
         <td>${c.course_title}</td>
@@ -88,7 +93,8 @@ async function loadDashboard() {
         <td><span class="grade-tag ${gradeClass(c.grade)}">${c.grade || "—"}</span></td>
         <td>${badge}</td>
       </tr>`;
-  }).join("");
+    })
+    .join("");
 }
 
 loadDashboard();

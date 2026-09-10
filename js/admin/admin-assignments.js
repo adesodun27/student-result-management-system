@@ -1,15 +1,11 @@
-/* ADMIN ASSIGNMENTS — wired to Supabase.
-   Lecturer→course: lecturer_courses (lecturer_id, course_id, session, semester)
-   Student→course:  student_registrations (student_id, course_id, session, semester)
-   Dropdowns: profiles (role=lecturer/student) + courses. */
+/* ADMIN ASSIGNMENTS — wired to Supabase. */
 
 const $ = (s) => document.querySelector(s);
-
 const SESSION = "2024/2025";
 
-let lecturers = [];
-let students = [];
-let courses = [];
+let lecturers = [],
+  students = [],
+  courses = [];
 
 async function loadRefData() {
   const [lecRes, stuRes, crsRes] = await Promise.all([
@@ -77,12 +73,12 @@ async function loadLecAssignments() {
     )
     .order("id", { ascending: false });
 
+  const body = $("#lecAssignList");
   if (error) {
     console.error(error);
+    body.innerHTML = `<tr><td colspan="4" style="text-align:center;color:#d9534f;padding:24px">Couldn't load assignments. Please refresh.</td></tr>`;
     return;
   }
-
-  const body = $("#lecAssignList");
   if (!data || data.length === 0) {
     body.innerHTML = `<tr><td colspan="4" style="text-align:center;color:#999;padding:24px">No assignments yet.</td></tr>`;
     return;
@@ -113,7 +109,7 @@ async function assign() {
   const err = $("#lecError");
 
   if (!lecturer_id || !course_id) {
-    err.textContent = "Pick a lecturer and a course.";
+    err.textContent = "Please pick a lecturer and a course.";
     return;
   }
   err.textContent = "";
@@ -126,9 +122,12 @@ async function assign() {
   });
 
   if (error) {
-    err.textContent = error.message.includes("duplicate")
-      ? "That lecturer is already assigned to this course this semester."
-      : "Couldn't assign: " + error.message;
+    console.error(error);
+    const raw = (error.message || "").toLowerCase();
+    err.textContent =
+      raw.includes("duplicate") || raw.includes("already")
+        ? "That lecturer is already assigned to this course this semester."
+        : "Couldn't assign the course. Please try again.";
     return;
   }
   await loadLecAssignments();
@@ -138,7 +137,8 @@ async function assign() {
 async function removeLecAssignment(id) {
   const { error } = await db.from("lecturer_courses").delete().eq("id", id);
   if (error) {
-    toast("Couldn't remove: " + error.message, true);
+    console.error(error);
+    toast("Couldn't remove this assignment. Please try again.", true);
     return;
   }
   await loadLecAssignments();
@@ -154,12 +154,12 @@ async function loadStuRegistrations() {
     )
     .order("id", { ascending: false });
 
+  const body = $("#stuRegList");
   if (error) {
     console.error(error);
+    body.innerHTML = `<tr><td colspan="4" style="text-align:center;color:#d9534f;padding:24px">Couldn't load registrations. Please refresh.</td></tr>`;
     return;
   }
-
-  const body = $("#stuRegList");
   if (!data || data.length === 0) {
     body.innerHTML = `<tr><td colspan="4" style="text-align:center;color:#999;padding:24px">No registrations yet.</td></tr>`;
     return;
@@ -190,7 +190,7 @@ async function register() {
   const err = $("#stuError");
 
   if (!student_id || !course_id) {
-    err.textContent = "Pick a student and a course.";
+    err.textContent = "Please pick a student and a course.";
     return;
   }
   err.textContent = "";
@@ -203,9 +203,12 @@ async function register() {
   });
 
   if (error) {
-    err.textContent = error.message.includes("duplicate")
-      ? "That student is already registered for this course this semester."
-      : "Couldn't register: " + error.message;
+    console.error(error);
+    const raw = (error.message || "").toLowerCase();
+    err.textContent =
+      raw.includes("duplicate") || raw.includes("already")
+        ? "That student is already registered for this course this semester."
+        : "Couldn't register the student. Please try again.";
     return;
   }
   await loadStuRegistrations();
@@ -218,14 +221,22 @@ async function removeStuRegistration(id) {
     .delete()
     .eq("id", id);
   if (error) {
-    toast("Couldn't remove: " + error.message, true);
+    console.error(error);
+    const raw = (error.message || "").toLowerCase();
+    if (raw.includes("foreign key") || error.code === "23503") {
+      toast(
+        "Can't remove — this student already has a result for this course.",
+        true,
+      );
+    } else {
+      toast("Couldn't remove this registration. Please try again.", true);
+    }
     return;
   }
   await loadStuRegistrations();
   toast("Registration removed");
 }
 
-/* ---- toast ---- */
 let toastTimer;
 function toast(msg, isErr) {
   const t = $("#toast");

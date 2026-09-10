@@ -1,18 +1,57 @@
-/* LECTURER DASHBOARD — wired to Supabase.
-   Loads the logged-in lecturer's assigned courses + result progress. */
+/* LECTURER DASHBOARD — wired to Supabase, filtered by selected session/semester. */
 
 const $ = (s) => document.querySelector(s);
+
+function set(id, value) {
+  const el = document.getElementById(id);
+  if (el) el.textContent = value;
+}
+
+function getSelected() {
+  const val = $("#sessionSelect").value; // "2024/2025|Harmattan"
+  const [session, semester] = val.split("|");
+  return { session, semester };
+}
+
+function statusBadge(status) {
+  const map = {
+    "not-started": ["status-not-started", "Not Started"],
+    draft: ["status-draft", "Draft"],
+    submitted: ["status-submitted", "Submitted"],
+    approved: ["status-approved", "Approved"],
+  };
+  const [cls, label] = map[status] || map["not-started"];
+  return `<span class="status-badge ${cls}">${label}</span>`;
+}
+function actionLabel(status) {
+  if (status === "not-started") return "Enter Scores";
+  if (status === "draft") return "Continue";
+  return "View";
+}
+function progressClass(scored, total) {
+  if (total === 0 || scored === 0) return "progress-danger";
+  if (scored >= total) return "progress-success";
+  return "progress-warning";
+}
+function deriveStatus(results) {
+  if (!results || results.length === 0) return "not-started";
+  if (results.some((r) => r.status === "approved")) return "approved";
+  if (results.some((r) => r.status === "submitted")) return "submitted";
+  return "draft";
+}
+
+let currentUser = null;
 
 async function loadDashboard() {
   const {
     data: { user },
   } = await db.auth.getUser();
   if (!user) {
-    console.warn("No logged-in user yet");
     renderCourses([]);
     renderSummary([]);
     return;
   }
+  currentUser = user;
 
   // header profile
   const { data: profile } = await db
@@ -22,20 +61,33 @@ async function loadDashboard() {
     .single();
 
   if (profile) {
+    set("welcomeName", `Welcome, ${profile.full_name}`); // if you add id="welcomeName"
     const welcome = document.querySelector(".welcome-message");
     const info = document.querySelector(".lecturer-info");
-    if (welcome) welcome.textContent = `Welcome, ${profile.full_name} 👋`;
+    if (welcome) welcome.textContent = `Welcome, ${profile.full_name}`;
     if (info)
       info.textContent = `Staff ID · ${profile.staff_id || "—"} · ${profile.department || "—"}`;
   }
 
-  // assigned courses
+  await loadCoursesForSemester();
+}
+
+async function loadCoursesForSemester() {
+  if (!currentUser) return;
+  const { session, semester } = getSelected();
+
+  // update the section subtitle to match selection
+  const sub = document.querySelector(".section-title span");
+  if (sub) sub.textContent = `${session} · ${semester} Semester`;
+
   const { data: assignments, error } = await db
     .from("lecturer_courses")
     .select(
       `id, session, semester, courses ( id, course_code, course_title, credit_units, level )`,
     )
-    .eq("lecturer_id", user.id);
+    .eq("lecturer_id", currentUser.id)
+    .eq("session", session)
+    .eq("semester", semester); // ← filter by selected semester
 
   if (error) {
     console.error(error);
@@ -47,8 +99,8 @@ async function loadDashboard() {
   const courses = [];
   for (const a of assignments || []) {
     const c = a.courses;
+    if (!c) continue;
 
-    // registrations for this course/session/semester
     const { data: regs } = await db
       .from("student_registrations")
       .select("id")
@@ -59,7 +111,6 @@ async function loadDashboard() {
     const regIds = (regs || []).map((r) => r.id);
     const total = regIds.length;
 
-    // results for those registrations
     let results = [];
     if (regIds.length) {
       const { data: res } = await db
@@ -87,36 +138,6 @@ async function loadDashboard() {
   renderSummary(courses);
 }
 
-function deriveStatus(results) {
-  if (!results || results.length === 0) return "not-started";
-  if (results.some((r) => r.status === "approved")) return "approved";
-  if (results.some((r) => r.status === "submitted")) return "submitted";
-  return "draft";
-}
-
-function statusBadge(status) {
-  const map = {
-    "not-started": ["status-not-started", "Not Started"],
-    draft: ["status-draft", "Draft"],
-    submitted: ["status-submitted", "Submitted"],
-    approved: ["status-approved", "Approved"],
-  };
-  const [cls, label] = map[status] || map["not-started"];
-  return `<span class="status-badge ${cls}">${label}</span>`;
-}
-
-function actionLabel(status) {
-  if (status === "not-started") return "Enter Scores";
-  if (status === "draft") return "Continue";
-  return "View";
-}
-
-function progressClass(scored, total) {
-  if (total === 0 || scored === 0) return "progress-danger";
-  if (scored >= total) return "progress-success";
-  return "progress-warning";
-}
-
 function renderCourses(courses) {
   const wrap = document.querySelector(".courses-section");
   wrap.querySelectorAll(".course-card").forEach((el) => el.remove());
@@ -124,7 +145,7 @@ function renderCourses(courses) {
   if (courses.length === 0) {
     const empty = document.createElement("div");
     empty.className = "course-card";
-    empty.innerHTML = `<div class="course-info"><p>No assigned courses yet.</p></div>`;
+    empty.innerHTML = `<div class="course-info"><p>No assigned courses for this semester.</p></div>`;
     wrap.appendChild(empty);
     return;
   }
@@ -173,5 +194,10 @@ function renderSummary(courses) {
     cards[3].textContent = approved;
   }
 }
+
+// re-load when semester changes
+document
+  .getElementById("sessionSelect")
+  .addEventListener("change", loadCoursesForSemester);
 
 loadDashboard();

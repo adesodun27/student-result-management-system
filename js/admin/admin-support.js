@@ -27,7 +27,7 @@ async function loadTickets() {
   if (error) {
     console.error(error);
     $("#ticketList").innerHTML =
-      `<tr><td colspan="6" style="text-align:center;color:#d9534f;padding:26px">Couldn't load: ${error.message}</td></tr>`;
+      `<tr><td colspan="6" style="text-align:center;color:#d9534f;padding:26px">Couldn't load support requests. Please refresh the page.</td></tr>`;
     return;
   }
 
@@ -77,7 +77,8 @@ async function updateStatus(id, status) {
     .eq("id", id);
 
   if (error) {
-    toast("Couldn't update: " + error.message, true);
+    console.error(error);
+    toast("Couldn't update the status. Please try again.", true);
     return;
   }
   await loadTickets();
