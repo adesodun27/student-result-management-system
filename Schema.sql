@@ -844,3 +844,46 @@ BEGIN
     WHERE id = auth.uid();
 END;
 $$;
+
+
+-- ============================================================
+-- Support AI additions
+-- ============================================================
+
+-- AI reply written by the support-ai edge function
+alter table public.support_tickets
+  add column if not exists ai_response text;
+
+-- Allow all statuses the app uses (including ai_resolved set by the AI)
+alter table public.support_tickets
+  drop constraint if exists support_tickets_status_check;
+
+alter table public.support_tickets
+  add constraint support_tickets_status_check
+  check (status in ('open', 'ai_resolved', 'in_progress', 'resolved', 'closed'));
+
+-- ============================================================
+-- Admin delete policies (RLS)
+-- ============================================================
+
+create policy "admins can delete student_registrations"
+on public.student_registrations
+for delete
+to authenticated
+using (
+  exists (
+    select 1 from public.profiles p
+    where p.id = auth.uid() and p.role = 'admin'
+  )
+);
+
+create policy "admins can delete lecturer_courses"
+on public.lecturer_courses
+for delete
+to authenticated
+using (
+  exists (
+    select 1 from public.profiles p
+    where p.id = auth.uid() and p.role = 'admin'
+  )
+);
