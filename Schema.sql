@@ -887,3 +887,16 @@ using (
     where p.id = auth.uid() and p.role = 'admin'
   )
 );
+
+-- support_tickets status must allow all statuses the app uses,
+-- including ai_resolved (set by the support-ai edge function)
+alter table public.support_tickets
+  drop constraint if exists support_tickets_status_check;
+
+alter table public.support_tickets
+  add constraint support_tickets_status_check
+  check (status in ('open', 'ai_resolved', 'in_progress', 'resolved', 'closed'));
+
+-- AI reply written by the support-ai edge function
+alter table public.support_tickets
+  add column if not exists ai_response text;
